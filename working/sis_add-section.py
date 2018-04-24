@@ -8,17 +8,17 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 
 def wait(x):
-    WebDriverWait(driver,10).until(EC.element_to_be_clickable((By.XPATH,x)))
+    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, x)))
     return
 
 
 def frame_wait(x):
-    WebDriverWait(driver,50).until(EC.frame_to_be_available_and_switch_to_it(x))
+    WebDriverWait(driver, 50).until(EC.frame_to_be_available_and_switch_to_it(x))
     return
 
 
 def url_wait(x):
-    WebDriverWait(driver,10).until(EC.url_to_be(x))
+    WebDriverWait(driver, 10).until(EC.url_to_be(x))
     return
 
 
@@ -102,7 +102,7 @@ with open(r"C:\Work\new-section-sis-data.txt") as csvfile:
         sid = row[3]
         sis_search(subject, course_number, term)
         time.sleep(1)
-        try:
+        try:  # test whether search goes directly to results, or first record must be clicked
             wait("""//*[@id="CLASS_TBL_SESSION_CODE$0"]""")
         except TimeoutException:
             xpath("""//*[@id="SEARCH_RESULT1"]""").click()
