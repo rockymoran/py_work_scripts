@@ -9,5 +9,6 @@ honda = Car('City', 2017, 100000)
 tata = Car('Zap', 2016, 600000)
 
 honda.cc=1500
+tata.cc = 2500
 
 print(tata.__dict__)
