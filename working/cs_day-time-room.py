@@ -16,9 +16,9 @@ xpath = driver.find_element_by_xpath
 
 
 # file format
-# CCN   ROOM    DAY START   END
-# 00001 C125    MW  10:00AM 12:30PM
-# 00002 N100    TTh 9:30AM  11:00AM
+# CCN   ROOM    DAY START   END     START_DATE  END_DATE
+# 00001 C125    MW  10:00AM 12:30PM 5/19/2035   6/24/2035
+# 00002 N100    TTh 9:30AM  11:00AM 5/19/2035   6/24/2035
 
 def wait(x):
     WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, x)))
@@ -26,9 +26,19 @@ def wait(x):
 
 
 def wait_invis(x):
-    WebDriverWait(driver, 10).until(EC.invisibility_of_element_located((By.XPATH, x)))
+    WebDriverWait(driver, 30).until(EC.invisibility_of_element_located((By.XPATH, x)))
     return
 
+
+class Course:
+    def __init__(self, recordID, room, day, start, end, start_d="", end_d=""):
+        self.recordID = recordID
+        self.room = room
+        self.day = day
+        self.start = start
+        self.end = end
+        self.start_d = start_d
+        self.end_d = end_d
 
 # set semester
 term = input("Semester and year (e.g., Spring 2142): ")
@@ -60,27 +70,37 @@ while (editMode == 0) or (editMode > 2):
 with open(r"C:\Work\rooms.txt") as csvfile:
     file = csv.reader(csvfile, delimiter='\t')
     for row in file:
-        recordID = row[0]
-        room = row[1]
-        day = row[2]
-        start = row[3]
-        end = row[4]
+        current_course = Course(row[0], row[1], row[2], row[3], row[4])
+        try:
+            current_course.start_d = row[5]
+            current_course.end_d = row[6]
+            noDates = False
+        except IndexError:
+            noDates = True
         wait("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""")
         xpath("""//*[@id="Clear"]""")
         wait("""//*[@id="SearchForm"]/div[1]/div[2]/div[3]/span/span/input""")
         xpath("""//*[@id="SearchForm"]/div[1]/div[2]/div[3]/span/span/input""").clear()
         time.sleep(1)
-        xpath("""//*[@id="SearchForm"]/div[1]/div[2]/div[3]/span/span/input""").send_keys(term)
+        try:
+            xpath("""//*[@id="SearchForm"]/div[1]/div[2]/div[3]/span/span/input""").send_keys(term)
+        except:
+            time.sleep(1)
+            xpath("""//*[@id="SearchForm"]/div[1]/div[2]/div[3]/span/span/input""").send_keys(term)
         time.sleep(1)
         wait("""//*[@id="SearchButton"]""")
         if usedID > 1:
             xpath("""//*[@id="searchModel_Schedule_ID"]""").clear()
-            xpath("""//*[@id="searchModel_Schedule_ID"]""").send_keys(recordID)
+            xpath("""//*[@id="searchModel_Schedule_ID"]""").send_keys(current_course.recordID)
         else:
             xpath("""//*[@id="searchModel_CCN"]""").clear()
-            xpath("""//*[@id="searchModel_CCN"]""").send_keys(recordID)
+            xpath("""//*[@id="searchModel_CCN"]""").send_keys(current_course.recordID)
         xpath("""//*[@id="SearchButton"]""").click()
-        wait("""//*[@id="GridCSList"]/table/tbody/tr/td[2]/a""")
+        try:
+            wait("""//*[@id="GridCSList"]/table/tbody/tr/td[2]/a""")
+        except:
+            time.sleep(1)
+            wait("""//*[@id="GridCSList"]/table/tbody/tr/td[2]/a""")
         time.sleep(1)
         wait_invis("""//div[@class='modal-backdrop fade in']""")
         xpath("""//*[@id="GridCSList"]/table/tbody/tr/td[2]/a""").click()
@@ -93,24 +113,29 @@ with open(r"C:\Work\rooms.txt") as csvfile:
             xpath("""//*[@id="ClassroomGrid"]/table/tbody/tr/td[1]/a/span""").click()
         wait("""// *[ @ id = "ClassroomGrid"] / table / tbody / tr / td[1] / a[1]""")
         xpath("""//*[@id="ClassroomGrid"]/table/tbody/tr/td[2]/span[1]/span/input""").clear()
-        xpath("""//*[@id="ClassroomGrid"]/table/tbody/tr/td[2]/span[1]/span/input""").send_keys(room)
+        xpath("""//*[@id="ClassroomGrid"]/table/tbody/tr/td[2]/span[1]/span/input""").send_keys(current_course.room)
         time.sleep(1)
         driver.find_element_by_css_selector("""#ClassroomGrid > table > tbody > tr > td:nth-child(2) > span.k-widget.k-combobox.k-header.k-combobox-clearable > span > input""").send_keys(Keys.DOWN)
         xpath("""//*[@id="ClassroomGrid"]/table/tbody/tr/td[4]/span[1]/span/input""").clear()
-        xpath("""//*[@id="ClassroomGrid"]/table/tbody/tr/td[4]/span[1]/span/input""").send_keys(day)
+        xpath("""//*[@id="ClassroomGrid"]/table/tbody/tr/td[4]/span[1]/span/input""").send_keys(current_course.day)
         time.sleep(1)
         driver.find_element_by_css_selector("""#ClassroomGrid > table > tbody > tr > td:nth-child(4) > span.k-widget.k-combobox.k-header.k-combobox-clearable > span > input""").send_keys(Keys.ENTER)
         xpath("""//*[@id="Begin_Time"]""").clear()
-        xpath("""//*[@id="Begin_Time"]""").send_keys(start)
+        xpath("""//*[@id="Begin_Time"]""").send_keys(current_course.start)
         xpath("""//*[@id="End_Time"]""").clear()
-        xpath("""//*[@id="End_Time"]""").send_keys(end)
+        xpath("""//*[@id="End_Time"]""").send_keys(current_course.end)
+        if not noDates:
+            xpath("""//*[@id="Begin_Date"]""").clear()
+            xpath("""//*[@id="Begin_Date"]""").send_keys(current_course.start_d)
+            xpath("""//*[@id="End_Date"]""").clear()
+            xpath("""//*[@id="End_Date"]""").send_keys(current_course.end_d)
         xpath("""//*[@id="ClassroomGrid"]/table/tbody/tr/td[1]/a[1]""").click()
         time.sleep(1)
         wait("""//*[@id="Searchbutton"]""")
         try:
             xpath("""//*[@id="Searchbutton"]""").click()
-            print(recordID)
+            print(current_course.recordID)
         except:
             time.sleep(3)
             driver.get("""https://coursescheduling.haas.berkeley.edu/Search""")
-            print("Potential issue: ", recordID)
+            print("Potential issue: ", current_course.recordID)
