@@ -16,9 +16,9 @@ xpath = driver.find_element_by_xpath
 
 
 # file format
-# CCN   ROOM    DAY START   END
-# 00001 C125    MW  10:00AM 12:30PM
-# 00002 N100    TTh 9:30AM  11:00AM
+# CCN   INST
+# 00001 Smith, M
+# 00002 Gonzales, R
 
 def wait(x):
     WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, x)))
