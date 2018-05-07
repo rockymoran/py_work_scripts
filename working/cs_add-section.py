@@ -21,7 +21,7 @@ def wait(x):
 
 
 # set semester
-term = input("Semester and year (e.g., Spring 2142): ")
+term = input("Semester and year (e.g., Spring 2042): ")
 
 
 with open(r"C:\Work\ind.txt") as csvfile:

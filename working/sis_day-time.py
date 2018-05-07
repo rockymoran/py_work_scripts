@@ -4,8 +4,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import NoSuchElementException
 from datetime import datetime
 from datetime import timedelta
@@ -19,12 +17,12 @@ xpath = driver.find_element_by_xpath
 
 
 def wait(x):
-    element = WebDriverWait(driver,10).until(EC.element_to_be_clickable((By.XPATH,x)))
+    WebDriverWait(driver,10).until(EC.element_to_be_clickable((By.XPATH, x)))
     return
 
 
 def frame_wait(x):
-    element = WebDriverWait(driver,50).until(EC.frame_to_be_available_and_switch_to_it(x))
+    WebDriverWait(driver,50).until(EC.frame_to_be_available_and_switch_to_it(x))
     return
 
 
@@ -42,7 +40,7 @@ def sis_search(x, y, z="UCB01"):
 
 
 def url_wait(x):
-    WebDriverWait(driver,10).until(EC.url_to_be(x))
+    WebDriverWait(driver, 10).until(EC.url_to_be(x))
     return
 
 
