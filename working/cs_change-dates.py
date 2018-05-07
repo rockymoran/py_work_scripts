@@ -4,6 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.keys import Keys
 # from selenium.webdriver.common.action_chains import ActionChains
 
@@ -29,7 +30,7 @@ usedID = 0
 while (usedID == 0) or (usedID > 2):
     while True:
             try:
-                usedID = int(input("Which ID type (1 = CCN, 2 = Schedule ID: "))
+                usedID = int(input("Which ID type (1 = CCN, 2 = Schedule ID): "))
             except ValueError:
                 print("Sorry, I didn't understand that.\n")
                 continue
@@ -45,9 +46,15 @@ with open(r"C:\Work\dates.txt") as csvfile:
         endDate = row[2]
         wait("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""")
         xpath("""//*[@id="Clear"]""")
-        wait("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""")
-        xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""").clear()
-        xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""").send_keys(term)
+        try:
+            wait("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""")
+            xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""").clear()
+            xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""").send_keys(term)
+        except WebDriverException:
+            time.sleep(5)
+            wait("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""")
+            xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""").clear()
+            xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""").send_keys(term)
         time.sleep(1)
         wait("""//*[@id="SearchButton"]""")
         if usedID > 1:
@@ -59,6 +66,8 @@ with open(r"C:\Work\dates.txt") as csvfile:
         xpath("""//*[@id="SearchButton"]""").click()
         time.sleep(1)
         wait("""//*[@id="GridCSList"]/table/tbody/tr/td[2]/a""")
+        time.sleep(1)
+        WebDriverWait(driver, 30).until(EC.invisibility_of_element_located((By.XPATH, """/html/body/div[16]/div[1]""")))
         time.sleep(1)
         xpath("""//*[@id="GridCSList"]/table/tbody/tr/td[2]/a""").click()
         wait("""//*[@id="ClassroomGrid"]/table/tbody/tr/td[1]/a/span""")
