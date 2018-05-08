@@ -94,3 +94,4 @@
 [0306/130927.371:ERROR:process_reader_win.cc(123)] NtOpenThread: {Access Denied} A process has requested access to an object, but has not been granted those access rights. (0xc0000022)
 [0306/130927.372:ERROR:exception_snapshot_win.cc(88)] thread ID 12812 not found in process
 [0306/130927.372:WARNING:crash_report_exception_handler.cc(62)] ProcessSnapshotWin::Initialize failed
+[0507/203117.230:ERROR:prune_crash_reports.cc(34)] PruneCrashReportDatabase: Failed to get pending reports
