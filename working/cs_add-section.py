@@ -2,10 +2,9 @@ import csv
 import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait, Select
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.keys import Keys
-# from selenium.webdriver.common.action_chains import ActionChains
 
 # load page
 chrome_path = r"C:\Work\chromedriver.exe"
@@ -16,7 +15,7 @@ xpath = driver.find_element_by_xpath
 
 
 def wait(x):
-    WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, x)))
+    WebDriverWait(driver, 30).until(ec.element_to_be_clickable((By.XPATH, x)))
     return
 
 
@@ -53,8 +52,6 @@ with open(r"C:\Work\ind.txt") as csvfile:
         driver.find_element_by_css_selector("""#InstructorGrid > table > tbody > tr > td:nth-child(2) > 
         span.k-widget.k-combobox.k-header.k-combobox-clearable > span > input""").send_keys(Keys.DOWN)
         xpath("""//*[@id="InstructorGrid"]/table/tbody/tr/td[1]/a[1]/span""").click()
-        # wait("""/html/body/div[9]/div[2]/div/div/div/div/div[4]/button[2]""")
-        # xpath("""/html/body/div[9]/div[2]/div/div/div/div/div[4]/button[2]""").click()
         time.sleep(1)
         wait("""//*[@id="Searchbutton"]""")
         driver.find_element_by_css_selector("""#Searchbutton""").click()
