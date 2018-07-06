@@ -73,6 +73,7 @@ def main():
     n = 0
     setup = False
     while not setup:
+        print("Campus Solutions -> Maintain Schedule of Classes -> [Search for term and program] -> Enrollment Control")
         input("Press enter to begin. ")
         setup = True
     enrollment = EnrollmentControl()

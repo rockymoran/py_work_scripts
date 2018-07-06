@@ -18,7 +18,7 @@ xpath = driver.find_element_by_xpath
 
 
 def wait(x):
-    element = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, x)))
+    WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, x)))
     return
 
 
@@ -86,7 +86,7 @@ with open(r"C:\Work\dates.txt") as csvfile:
         try:
             xpath("""//*[@id="Searchbutton"]""").click()
         except:
-            time.sleep(10)
+            time.sleep(20)
             wait("""//*[@id="Searchbutton"]""")
             xpath("""//*[@id="Searchbutton"]""").click()
 

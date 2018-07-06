@@ -5,7 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.common.exceptions import NoSuchFrameException
 from working import sis_day_time
-import re
+# import re
 
 wait = sis_day_time.wait
 xpath = sis_day_time.xpath
@@ -51,13 +51,13 @@ class EmployeeSearch:
         xpath(EmployeeSearch.search_lname).send_keys(self.search_last_name)
         xpath(EmployeeSearch.search_fname).send_keys(self.search_first_name)
         time.sleep(1)
-        WebDriverWait(driver, 50).until(ec.invisibility_of_element_located((By.XPATH, """//*[@id="processing"]""")))
         xpath(EmployeeSearch.search_click).click()
+        WebDriverWait(driver, 50).until(ec.invisibility_of_element_located((By.XPATH, """//*[@id="processing"]""")))
         try:
             wait(EmployeeSearch.first_result)
             time.sleep(1)
             xpath(EmployeeSearch.first_result).click()
-        except NoSuchElementException:
+        except:
             wait(EmployeeSearch.search_cancel)
             time.sleep(1)
             xpath(EmployeeSearch.search_cancel).click()
@@ -67,8 +67,13 @@ class EmployeeSearch:
     def role_change(self):
         # this is not working yet; manually change instructor role below from options defined above
         select = Select(xpath(EmployeeSearch.instructor_role_drop))
-        select.select_by_value(EmployeeSearch.gsi)
+        select.select_by_value(EmployeeSearch.pri)
 
+
+# file format
+# CCN   Last, First
+# 19754 Miller, Conrad
+# 19755 Walker, William
 
 def main():
     term = input("Which term? (e.g. 2278): ")
@@ -80,7 +85,8 @@ def main():
             ccn = row[0]
             instructor = EmployeeSearch(frame_count, row[1])
             sis_search(ccn, term)
-            wait(instructor.instructor_role_drop)
+            wait(instructor.search_glass)
+            time.sleep(1)
             instructor.search_emp()
             save_record()
             instructor.role_change()
