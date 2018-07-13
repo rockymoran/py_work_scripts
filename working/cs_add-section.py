@@ -54,6 +54,10 @@ with open(r"C:\Work\ind.txt") as csvfile:
         xpath("""//*[@id="InstructorGrid"]/table/tbody/tr/td[1]/a[1]/span""").click()
         time.sleep(1)
         wait("""//*[@id="Searchbutton"]""")
-        driver.find_element_by_css_selector("""#Searchbutton""").click()
+        try:
+            xpath("""//*[@id="Searchbutton"]""").click()
+        except:
+            time.sleep(3)
+            driver.get("""https://coursescheduling.haas.berkeley.edu/Search""")
         print(row[3])
 

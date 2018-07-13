@@ -13,7 +13,6 @@ chrome_path = r"C:\Work\chromedriver.exe"
 driver = webdriver.Chrome(chrome_path)
 driver.maximize_window()
 driver.get("""https://coursescheduling.haas.berkeley.edu/Search""")
-# driver.get("""https://coursescheduling-dev.haas.berkeley.edu""")
 xpath = driver.find_element_by_xpath
 
 
@@ -23,14 +22,14 @@ def wait(x):
 
 
 # set semester
-term = input("Semester and year (e.g., Spring 2142): ")
+term = input("Semester and year (e.g., Spring 2142): ").strip()
 
 usedID = 0
 
 while (usedID == 0) or (usedID > 2):
     while True:
             try:
-                usedID = int(input("Which ID type (1 = CCN, 2 = Schedule ID): "))
+                usedID = int(input("Which ID type (1 = CCN, 2 = Schedule ID): ").strip())
             except ValueError:
                 print("Sorry, I didn't understand that.\n")
                 continue
@@ -85,9 +84,8 @@ with open(r"C:\Work\dates.txt") as csvfile:
         wait("""//*[@id="Searchbutton"]""")
         try:
             xpath("""//*[@id="Searchbutton"]""").click()
+            print(recordID)
         except:
-            time.sleep(20)
-            wait("""//*[@id="Searchbutton"]""")
-            xpath("""//*[@id="Searchbutton"]""").click()
+            time.sleep(3)
+            driver.get("""https://coursescheduling.haas.berkeley.edu/Search""")
 
-        print(recordID)

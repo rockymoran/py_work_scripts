@@ -40,6 +40,7 @@ class Course:
         self.start_d = start_d
         self.end_d = end_d
 
+
 # set semester
 term = input("Semester and year (e.g., Spring 2142): ")
 

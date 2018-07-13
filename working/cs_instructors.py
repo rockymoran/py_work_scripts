@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import WebDriverException
 # from selenium.webdriver.common.action_chains import ActionChains
 
 # load page
@@ -62,7 +63,11 @@ with open(r"C:\Work\inst_cs.txt") as csvfile:
     for row in file:
         recordID = row[0]
         instructor = row[1]
-        wait("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""")
+        try:
+            wait("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""")
+        except WebDriverException:
+            driver.get("""https://coursescheduling.haas.berkeley.edu/Search""")
+            wait("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""")
         xpath("""//*[@id="Clear"]""")
         wait("""//*[@id="SearchForm"]/div[1]/div[2]/div[3]/span/span/input""")
         xpath("""//*[@id="SearchForm"]/div[1]/div[2]/div[3]/span/span/input""").clear()
@@ -104,3 +109,4 @@ with open(r"C:\Work\inst_cs.txt") as csvfile:
             time.sleep(3)
             driver.get("""https://coursescheduling.haas.berkeley.edu/Search""")
             print("Potential issue: ", recordID)
+
