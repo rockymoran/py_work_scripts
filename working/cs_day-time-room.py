@@ -86,7 +86,9 @@ with open(r"C:\Work\rooms.txt") as csvfile:
         try:
             xpath("""//*[@id="SearchForm"]/div[1]/div[2]/div[3]/span/span/input""").send_keys(term)
         except:
-            time.sleep(1)
+            time.sleep(3)
+            wait("""//*[@id="searchModel_CCN"]""")
+            wait("""//*[@id="SearchForm"]/div[1]/div[2]/div[3]/span/span/input""")
             xpath("""//*[@id="SearchForm"]/div[1]/div[2]/div[3]/span/span/input""").send_keys(term)
         time.sleep(1)
         wait("""//*[@id="SearchButton"]""")
