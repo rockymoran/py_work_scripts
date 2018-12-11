@@ -12,7 +12,8 @@ from selenium.common.exceptions import WebDriverException
 chrome_path = r"C:\Work\chromedriver.exe"
 driver = webdriver.Chrome(chrome_path)
 driver.maximize_window()
-driver.get("""https://coursescheduling.haas.berkeley.edu/Search""")
+website = """https://coursescheduling-qa.haas.berkeley.edu/Search"""
+driver.get(website)
 xpath = driver.find_element_by_xpath
 
 
@@ -66,7 +67,7 @@ with open(r"C:\Work\inst_cs.txt") as csvfile:
         try:
             wait("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""")
         except WebDriverException:
-            driver.get("""https://coursescheduling.haas.berkeley.edu/Search""")
+            driver.get(website)
             wait("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""")
         xpath("""//*[@id="Clear"]""")
         wait("""//*[@id="SearchForm"]/div[1]/div[2]/div[3]/span/span/input""")
@@ -107,6 +108,6 @@ with open(r"C:\Work\inst_cs.txt") as csvfile:
             print(recordID)
         except:
             time.sleep(3)
-            driver.get("""https://coursescheduling.haas.berkeley.edu/Search""")
+            driver.get(website)
             print("Potential issue: ", recordID)
 

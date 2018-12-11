@@ -41,7 +41,7 @@ class EmployeeSearch:
     def search_emp(self):
         xpath(EmployeeSearch.search_glass).click()
         time.sleep(2)
-        WebDriverWait(driver, 50).until(ec.invisibility_of_element_located((By.XPATH, """//*[@id="processing"]""")))
+        WebDriverWait(driver, 120).until(ec.invisibility_of_element_located((By.XPATH, """//*[@id="processing"]""")))
         driver.switch_to.parent_frame()
         try:
             driver.switch_to_frame("ptModFrame_0")
@@ -52,7 +52,7 @@ class EmployeeSearch:
         xpath(EmployeeSearch.search_fname).send_keys(self.search_first_name)
         time.sleep(1)
         xpath(EmployeeSearch.search_click).click()
-        WebDriverWait(driver, 50).until(ec.invisibility_of_element_located((By.XPATH, """//*[@id="processing"]""")))
+        WebDriverWait(driver, 120).until(ec.invisibility_of_element_located((By.XPATH, """//*[@id="processing"]""")))
         try:
             wait(EmployeeSearch.first_result)
             time.sleep(1)

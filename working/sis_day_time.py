@@ -90,8 +90,10 @@ def change_days(x):
 
 
 def change_times(x, y):
+    x = x.replace(" ", "")
+    y = y.replace(" ", "")
     y = datetime.strptime(y, '%I:%M%p') - timedelta(minutes=1)
-    y = datetime.strftime(y,'%I:%M%p')
+    y = datetime.strftime(y, '%I:%M%p')
     time.sleep(1.5)
     # remove old room first
     xpath("""//*[@id="CLASS_MTG_PAT_FACILITY_ID$0"]""").clear()
@@ -154,6 +156,7 @@ def find_max(x):
         "F295": 299,
         "F320": 70,
         "F678": 12,
+        "I-Lab 124": 70,
         "S300T": 60
     }
     return room_list.get(x, "none")
@@ -192,6 +195,7 @@ def change_room(x):
         "N570": "CHOUN570",
         "I-Lab": "STAD124",
         "F295": "HAASF295",
+        "I-Lab 124": "STAD124",
         "F320": "HAASF320",
         "F678": "HAASF678",
         "S300T": "HAASS300T"
@@ -237,62 +241,81 @@ def return_to_results():
     return
 
 
-# set semester and whether course max enrollment changes
-term = input("Term (e.g., 2985): ")
-maxes = 0
+def main():
+    # set semester and whether course max enrollment changes
+    term = input("Term (e.g., 2985): ")
+    maxes = 0
+    global_skip = 0
 
-while (maxes == 0) or (maxes > 2):
-    while True:
+    while (maxes == 0) or (maxes > 2):
+        while True:
+                try:
+                    maxes = int(input("Change course maxes? Won't work after registration has begun. (1 = Yes, 2 = No): "))
+                except ValueError:
+                    print("Sorry, I didn't understand that.\n")
+                    continue
+                else:
+                    break
+
+    while (global_skip == 0) or (global_skip > 2):
+        while True:
+                try:
+                    global_skip = int(input("Create room assignments? (1 = Yes, 2 = No): "))
+                except ValueError:
+                    print("Sorry, I didn't understand that.\n")
+                    continue
+                else:
+                    break
+
+    with open(r"C:\Work\enter-days-sis-data.txt") as csvfile:
+        frame_wait("ptifrmtgtframe")
+        file = csv.reader(csvfile, delimiter='\t')
+        # file format
+        # CCN   StartT  EndT    Days    Room
+        # 01234 12:30PM 2:00PM  MW      C110
+        # 01235 2:00PM  3:30PM  TTh     N300
+        for row in file:
+            CCN = row[0]
+            start = row[1]
+            end = row[2]
+            days = row[3]
             try:
-                maxes = int(input("Change course maxes? Won't work after registration has begun. (1 = Yes, 2 = No): "))
-            except ValueError:
-                print("Sorry, I didn't understand that.\n")
-                continue
-            else:
-                break
-
-with open(r"C:\Work\enter-days-sis-data.txt") as csvfile:
-    frame_wait("ptifrmtgtframe")
-    file = csv.reader(csvfile, delimiter='\t')
-    # file format
-    # CCN   StartT  EndT    Days    Room
-    # 01234 12:30PM 2:00PM  MW      C110
-    # 01235 2:00PM  3:30PM  TTh     N300
-    for row in file:
-        CCN = row[0]
-        start = row[1]
-        end = row[2]
-        days = row[3]
-        try:
-            room = row[4]
-            if len(room) > 0:
-                skip_room = False
-                room_max = find_max(room)
-            else:
+                room = row[4]
+                if len(room) > 0:
+                    if global_skip == 1:
+                        skip_room = False
+                    else:
+                        skip_room = True
+                    room_max = find_max(room)
+                else:
+                    skip_room = True
+            except IndexError:
                 skip_room = True
-        except IndexError:
-            skip_room = True
-        sis_search(CCN, term)
-        WebDriverWait(driver, 50).until(ec.invisibility_of_element_located((By.XPATH, loading)))
-        if maxes == 1 and not skip_room:
-            change_max()
+            sis_search(CCN, term)
+            WebDriverWait(driver, 50).until(ec.invisibility_of_element_located((By.XPATH, loading)))
+            if maxes == 1:
+                change_max()
+                save_record()
+            xpath("""//*[@id="ICTAB_0"]""").click()
+            WebDriverWait(driver, 50).until(ec.invisibility_of_element_located((By.XPATH, loading)))
+            wait("""// *[ @ id = "CLASS_MTG_PAT_STND_MTG_PAT$0"]""")
+            change_days(days)
+            time.sleep(1)
+            change_times(start, end)
+            if not skip_room:
+                change_room(room)
+            time.sleep(3)
             save_record()
-        xpath("""//*[@id="ICTAB_0"]""").click()
-        WebDriverWait(driver, 50).until(ec.invisibility_of_element_located((By.XPATH, loading)))
-        wait("""// *[ @ id = "CLASS_MTG_PAT_STND_MTG_PAT$0"]""")
-        change_days(days)
-        time.sleep(1)
-        change_times(start, end)
-        if not skip_room:
-            change_room(room)
-        time.sleep(3)
-        save_record()
-        if maxes == 1 and not skip_room:
-            change_max(room_max)
-        WebDriverWait(driver, 50).until(ec.invisibility_of_element_located((By.XPATH, loading)))
-        save_record()
-        return_to_results()
-        WebDriverWait(driver, 50).until(ec.invisibility_of_element_located((By.XPATH, loading)))
-        wait("""//*[@id="#ICClear"]""")
-        print(CCN)
-print("Complete")
+            if maxes == 1:
+                change_max(room_max)
+            WebDriverWait(driver, 50).until(ec.invisibility_of_element_located((By.XPATH, loading)))
+            save_record()
+            return_to_results()
+            WebDriverWait(driver, 50).until(ec.invisibility_of_element_located((By.XPATH, loading)))
+            wait("""//*[@id="#ICClear"]""")
+            print(CCN)
+    print("Complete")
+
+
+if __name__ == "__main__":
+    main()

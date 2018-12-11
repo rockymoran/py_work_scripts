@@ -55,13 +55,14 @@ with open(r"C:\Work\dates.txt") as csvfile:
             xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""").clear()
             xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""").send_keys(term)
         time.sleep(1)
-        wait("""//*[@id="SearchButton"]""")
+        wait("""//*[@id="searchModel_CCN"]""")
         if usedID > 1:
             xpath("""//*[@id="searchModel_Schedule_ID"]""").clear()
             xpath("""//*[@id="searchModel_Schedule_ID"]""").send_keys(recordID)
         else:
             xpath("""//*[@id="searchModel_CCN"]""").clear()
             xpath("""//*[@id="searchModel_CCN"]""").send_keys(recordID)
+        wait("""//*[@id="SearchButton"]""")
         xpath("""//*[@id="SearchButton"]""").click()
         time.sleep(1)
         wait("""//*[@id="GridCSList"]/table/tbody/tr/td[2]/a""")

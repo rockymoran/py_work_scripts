@@ -11,7 +11,8 @@ from selenium.webdriver.common.keys import Keys
 chrome_path = r"C:\Work\chromedriver.exe"
 driver = webdriver.Chrome(chrome_path)
 driver.maximize_window()
-driver.get("""https://coursescheduling.haas.berkeley.edu/Search""")
+website = """https://coursescheduling-qa.haas.berkeley.edu/Search"""
+driver.get(website)
 xpath = driver.find_element_by_xpath
 
 
@@ -140,5 +141,5 @@ with open(r"C:\Work\rooms.txt") as csvfile:
             print(current_course.recordID)
         except:
             time.sleep(3)
-            driver.get("""https://coursescheduling.haas.berkeley.edu/Search""")
+            driver.get(website)
             print("Potential issue: ", current_course.recordID)
