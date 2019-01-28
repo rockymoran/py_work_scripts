@@ -94,6 +94,10 @@ class Course:
 # set semester
 term = input("Term (e.g., 2985): ")
 
+# format
+# ccn     room
+# 01234     choun270
+
 
 with open(r"C:\Work\enter-rooms-sis-data.txt") as csvfile:
     frame_wait("ptifrmtgtframe")

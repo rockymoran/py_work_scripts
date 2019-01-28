@@ -90,10 +90,14 @@ def change_days(x):
 
 
 def change_times(x, y):
-    x = x.replace(" ", "")
-    y = y.replace(" ", "")
-    y = datetime.strptime(y, '%I:%M%p') - timedelta(minutes=1)
-    y = datetime.strftime(y, '%I:%M%p')
+    try:
+        x = x.replace(" ", "")
+        y = y.replace(" ", "")
+        y = datetime.strptime(y, '%I:%M%p') - timedelta(minutes=1)
+        y = datetime.strftime(y, '%I:%M%p')
+    except ValueError:
+        x = ""
+        y = ""
     time.sleep(1.5)
     # remove old room first
     xpath("""//*[@id="CLASS_MTG_PAT_FACILITY_ID$0"]""").clear()
@@ -203,7 +207,7 @@ def change_room(x):
     xpath("""//*[@id="CLASS_MTG_PAT_FACILITY_ID$0"]""").clear()
     xpath("""//*[@id="CLASS_MTG_PAT_FACILITY_ID$0"]""").send_keys(room_list.get(key, "none"))
     save_record()
-    time.sleep(2)
+    time.sleep(1.5)
     try:
         driver.switch_to.parent_frame()
         wait("""//*[@id="#ICOK"]""")
@@ -271,14 +275,14 @@ def main():
         frame_wait("ptifrmtgtframe")
         file = csv.reader(csvfile, delimiter='\t')
         # file format
-        # CCN   StartT  EndT    Days    Room
-        # 01234 12:30PM 2:00PM  MW      C110
-        # 01235 2:00PM  3:30PM  TTh     N300
+        # CCN   Days    StartT  EndT    Room
+        # 01234 MW      12:30PM 2:00PM  C110
+        # 01235 TTh     2:00PM  3:30PM  N300
         for row in file:
             CCN = row[0]
-            start = row[1]
+            start = row[3]
             end = row[2]
-            days = row[3]
+            days = row[1]
             try:
                 room = row[4]
                 if len(room) > 0:
@@ -304,7 +308,7 @@ def main():
             change_times(start, end)
             if not skip_room:
                 change_room(room)
-            time.sleep(3)
+            time.sleep(1.5)
             save_record()
             if maxes == 1:
                 change_max(room_max)

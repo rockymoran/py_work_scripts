@@ -44,9 +44,9 @@ class EmployeeSearch:
         WebDriverWait(driver, 120).until(ec.invisibility_of_element_located((By.XPATH, """//*[@id="processing"]""")))
         driver.switch_to.parent_frame()
         try:
-            driver.switch_to_frame("ptModFrame_0")
+            driver.switch_to.frame("ptModFrame_0")  # used to be switch_to_frame; deprecatedH haven't tested new syntax
         except NoSuchFrameException:
-            driver.switch_to_frame("ptModFrame_" + str(self.frame_count))
+            driver.switch_to.frame("ptModFrame_" + str(self.frame_count))
         wait(EmployeeSearch.search_lname)
         xpath(EmployeeSearch.search_lname).send_keys(self.search_last_name)
         xpath(EmployeeSearch.search_fname).send_keys(self.search_first_name)

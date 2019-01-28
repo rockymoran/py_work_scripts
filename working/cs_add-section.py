@@ -10,7 +10,7 @@ from selenium.webdriver.common.keys import Keys
 chrome_path = r"C:\Work\chromedriver.exe"
 driver = webdriver.Chrome(chrome_path)
 driver.maximize_window()
-driver.get("""https://coursescheduling.haas.berkeley.edu/Search""")
+driver.get("""https://api.haas.berkeley.edu/Search""")
 xpath = driver.find_element_by_xpath
 
 
@@ -58,6 +58,5 @@ with open(r"C:\Work\ind.txt") as csvfile:
             xpath("""//*[@id="Searchbutton"]""").click()
         except:
             time.sleep(3)
-            driver.get("""https://coursescheduling.haas.berkeley.edu/Search""")
+            driver.get("""https://api.haas.berkeley.edu/Search""")
         print(row[3])
-

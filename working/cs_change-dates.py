@@ -12,7 +12,7 @@ from selenium.webdriver.common.keys import Keys
 chrome_path = r"C:\Work\chromedriver.exe"
 driver = webdriver.Chrome(chrome_path)
 driver.maximize_window()
-driver.get("""https://coursescheduling.haas.berkeley.edu/Search""")
+driver.get("""https://api.haas.berkeley.edu/Search""")
 xpath = driver.find_element_by_xpath
 
 
@@ -86,7 +86,8 @@ with open(r"C:\Work\dates.txt") as csvfile:
         try:
             xpath("""//*[@id="Searchbutton"]""").click()
             print(recordID)
-        except:
+        except Exception as e:
             time.sleep(3)
-            driver.get("""https://coursescheduling.haas.berkeley.edu/Search""")
+            driver.get("""https://api.haas.berkeley.edu/Search""")
+            print(recordID & ": Error - " & e)
 

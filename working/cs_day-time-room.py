@@ -11,7 +11,7 @@ from selenium.webdriver.common.keys import Keys
 chrome_path = r"C:\Work\chromedriver.exe"
 driver = webdriver.Chrome(chrome_path)
 driver.maximize_window()
-website = """https://coursescheduling-qa.haas.berkeley.edu/Search"""
+website = """https://api.haas.berkeley.edu/Search"""
 driver.get(website)
 xpath = driver.find_element_by_xpath
 
