@@ -21,17 +21,26 @@ def import_data():
 events = import_data()
 events.sort(key=lambda i: i.start)
 
-f310_events = [events for events in events if events.room == "F310"]
-f314_events = [events for events in events if events.room == "F314"]
-
-conflicts = 0
+f310_events = [e for e in events if e.room == "F310"]
+f314_events = [e for e in events if e.room == "F314"]
 
 
-for i in f314_events:
-    for x in f310_events:
-        if max(i.start, x.start) < min(i.end, x.end):
-            conflicts += 1
-            break
+def find_conflicts(first_room, second_room):
+    conflicts = 0
+    total_events = 0
+    for e1 in first_room:
+        total_events += 1
+        for e2 in second_room:
+            if max(e1.start, e2.start) < min(e1.end, e2.end):
+                conflicts += 1
+                # print(e1.description + " conflicts with " + e2.description)
+                break
+    return conflicts
 
 
-print(conflicts)
+print("F310 events: " + str(len(f310_events)))
+print("F314 events: " + str(len(f314_events)))
+print(str(find_conflicts(f310_events, f314_events)) + " conflicts found within " + str(len(f310_events)) +
+      " total events in F310.")
+print(str(find_conflicts(f314_events, f310_events)) + " conflicts found within " + str(len(f314_events)) +
+      " total events in F314.")
