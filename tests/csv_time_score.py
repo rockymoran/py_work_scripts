@@ -1,33 +1,50 @@
-from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.dates as md
-from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 
-ds = pd.read_csv('C:\Work\py-dat.csv')
+# csv formatted as:
+# time,score
+# 6:00:00 PM,6.22
+# 9:30:00 AM,6.149
+
+df = pd.read_csv('C:\Work\py-dat.csv')
+df = df.dropna()
 
 
-ds = ds.dropna()
+def convert_to_dec(str_time):
+    str_list = str_time.split(":")
+    str_list[1] = str(int(str_list[1])/60).lstrip("0")
+    if "PM" in str_list[2].upper():
+        str_list[0] = int(str_list[0])+12
+    return float("".join(str(x) for x in str_list[:2]))
 
-ds['Time'] = [datetime.strptime(str(x), '%I:%M:%S %p') for x in ds['Time']]
-ds['Time'] = pd.DatetimeIndex(ds['Time']).time
 
-ds.plot(x='Time', y='Score', style='o')
-#
-# plt.title('Start time vs Score')
-# plt.xlabel('Start Time')
-# plt.ylabel('Score')
-# print(ds.head())
-# plt.show()
+df['Time'] = [convert_to_dec(x) for x in df['Time']]
+df.sort_values(by='Time', ascending=True, inplace=True)
 
-X = ds.iloc[:, :-1].values
-y = ds.iloc[:, 1].values
+plt.plot(df['Time'], df['Score'], 'ro')
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+plt.title('Start time vs Score')
+plt.xlabel('Start Time')
+plt.ylabel('Score')
+
+print(df.head())
+
+X = df.iloc[:, :-1].values  # all rows, all columns *except* last
+y = df.iloc[:, 1].values  # all rows, only *second* column
 
 regressor = LinearRegression()
-regressor.fit(X_train, y_train)
+
+regressor.fit(X, y)
+slope = regressor.coef_
+intercept = regressor.intercept_
+
+regression_line = [(slope*x)+intercept for x in df['Time']]
+
+plt.plot(df['Time'], regression_line)
 
 print(regressor.intercept_)
+print(regressor.coef_)
+
+plt.show()
