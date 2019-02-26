@@ -18,7 +18,7 @@ loading = """//*[@id="processing"]"""
 
 
 def wait(x):
-    WebDriverWait(driver,10).until(ec.element_to_be_clickable((By.XPATH, x)))
+    WebDriverWait(driver, 45).until(ec.element_to_be_clickable((By.XPATH, x)))
     return
 
 

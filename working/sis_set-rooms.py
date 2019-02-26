@@ -4,7 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import NoSuchElementException, WebDriverException
+from selenium.common.exceptions import NoSuchElementException, WebDriverException, TimeoutException
 
 # load page
 chrome_path = r"C:\Work\chromedriver.exe"
@@ -80,8 +80,44 @@ def return_to_results():
 
 
 def change_room(x):
+    room_list = {
+        "C110": "CHEIC110",
+        "C125": "CHEIC125",
+        "C132": "CHEIC132",
+        "C135": "CHEIC135",
+        "C138": "CHEIC138",
+        "C210": "CHEIC210",
+        "C220": "CHEIC220",
+        "C230": "CHEIC230",
+        "C250": "CHEIC250",
+        "C320": "CHEIC320",
+        "C325": "CHEIC325",
+        "C330": "CHEIC330",
+        "C335": "CHEIC335",
+        "C337": "CHEIC337",
+        "C420": "CHEIC420",
+        "I": "STAD124",
+        "N100": "CHOUN100",
+        "N170": "CHOUN170",
+        "N270": "CHOUN270",
+        "N300": "CHOUN300",
+        "N340": "CHOU340344",
+        "N370": "CHOUN370",
+        "N400": "CHOUN400",
+        "N440": "CHOU440444",
+        "N470": "CHOUN470",
+        "N500": "CHOUN500",
+        "N540": "CHOU540544",
+        "N570": "CHOUN570",
+        "I-Lab": "STAD124",
+        "F295": "HAASF295",
+        "I-Lab 124": "STAD124",
+        "F320": "HAASF320",
+        "F678": "HAASF678",
+        "S300T": "HAASS300T"
+    }
     xpath("""//*[@id="CLASS_MTG_PAT_FACILITY_ID$0"]""").clear()
-    xpath("""//*[@id="CLASS_MTG_PAT_FACILITY_ID$0"]""").send_keys(course.room)
+    xpath("""//*[@id="CLASS_MTG_PAT_FACILITY_ID$0"]""").send_keys(room_list.get(x, ""))
     return
 
 
@@ -95,8 +131,8 @@ class Course:
 term = input("Term (e.g., 2985): ")
 
 # format
-# ccn     room
-# 01234     choun270
+# ccn     room (use course scheduling room values--algorithm will translate to SIS values)
+# 01234     n270
 
 
 with open(r"C:\Work\enter-rooms-sis-data.txt") as csvfile:
@@ -110,5 +146,13 @@ with open(r"C:\Work\enter-rooms-sis-data.txt") as csvfile:
         time.sleep(1)
         save_record()
         return_to_results()
-        wait("""//*[@id="#ICClear"]""")
+        try:
+            wait("""//*[@id="#ICClear"]""")
+        except TimeoutException:
+            driver.get(
+                """https://bcsint.is.berkeley.edu/psp/bcsprd/EMPLOYEE/SA/c/ESTABLISH_COURSES.CLASS_DATA_SCTN.GBL""")
+            frame_wait("ptifrmtgtframe")
+            wait("""//*[@id="#ICClear"]""")
+            print("Loading error on above record.")
+
 print("Complete")
