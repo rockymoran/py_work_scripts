@@ -14,16 +14,16 @@ driver = webdriver.Chrome(chrome_path)
 driver.maximize_window()
 driver.get("""https://bcsint.is.berkeley.edu""")
 xpath = driver.find_element_by_xpath
-loading = """//*[@id="processing"]"""
+loading = """//*[@id="WAIT_win0"]"""
 
 
 def wait(x):
-    WebDriverWait(driver, 45).until(ec.element_to_be_clickable((By.XPATH, x)))
+    WebDriverWait(driver, 20).until(ec.element_to_be_clickable((By.XPATH, x)))
     return
 
 
 def frame_wait(x):
-    WebDriverWait(driver,50).until(ec.frame_to_be_available_and_switch_to_it(x))
+    WebDriverWait(driver,15).until(ec.frame_to_be_available_and_switch_to_it(x))
     return
 
 
@@ -228,7 +228,11 @@ def save_record():
         frame_wait("ptifrmtgtframe")
         xpath("""//*[@id="#ICSave"]""").click()
     time.sleep(2)
-    WebDriverWait(driver, 50).until(ec.invisibility_of_element_located((By.ID, "SAVED_win0")))
+    try:
+        driver.find_element_by_xpath("""//*[@id="WAIT_win0"]""").is_displayed()
+        WebDriverWait(driver, 15).until(ec.invisibility_of_element_located((By.ID, "SAVED_win0")))
+    except NoSuchElementException:
+        pass
     return
 
 
@@ -254,9 +258,10 @@ def main():
     while (maxes == 0) or (maxes > 2):
         while True:
                 try:
-                    maxes = int(input("Change course maxes? Won't work after registration has begun. (1 = Yes, 2 = No): "))
+                    maxes = int(input("Change course maxes? Won't work after"
+                                      " registration has begun. (1 = Yes, 2 = No): "))
                 except ValueError:
-                    print("Sorry, I didn't understand that.\n")
+                    print(r"Sorry, I didn't understand that.\n")
                     continue
                 else:
                     break
@@ -266,7 +271,7 @@ def main():
                 try:
                     global_skip = int(input("Create room assignments? (1 = Yes, 2 = No): "))
                 except ValueError:
-                    print("Sorry, I didn't understand that.\n")
+                    print(r"Sorry, I didn't understand that.\n")
                     continue
                 else:
                     break
@@ -280,8 +285,8 @@ def main():
         # 01235 TTh     2:00PM  3:30PM  N300
         for row in file:
             CCN = row[0]
-            start = row[3]
-            end = row[2]
+            start = row[2]
+            end = row[3]
             days = row[1]
             try:
                 room = row[4]
@@ -296,12 +301,12 @@ def main():
             except IndexError:
                 skip_room = True
             sis_search(CCN, term)
-            WebDriverWait(driver, 50).until(ec.invisibility_of_element_located((By.XPATH, loading)))
+            WebDriverWait(driver, 15).until(ec.invisibility_of_element_located((By.XPATH, loading)))
             if maxes == 1:
                 change_max()
                 save_record()
             xpath("""//*[@id="ICTAB_0"]""").click()
-            WebDriverWait(driver, 50).until(ec.invisibility_of_element_located((By.XPATH, loading)))
+            WebDriverWait(driver, 15).until(ec.invisibility_of_element_located((By.XPATH, loading)))
             wait("""// *[ @ id = "CLASS_MTG_PAT_STND_MTG_PAT$0"]""")
             change_days(days)
             time.sleep(1)
@@ -312,10 +317,10 @@ def main():
             save_record()
             if maxes == 1:
                 change_max(room_max)
-            WebDriverWait(driver, 50).until(ec.invisibility_of_element_located((By.XPATH, loading)))
+            WebDriverWait(driver, 15).until(ec.invisibility_of_element_located((By.XPATH, loading)))
             save_record()
             return_to_results()
-            WebDriverWait(driver, 50).until(ec.invisibility_of_element_located((By.XPATH, loading)))
+            WebDriverWait(driver, 15).until(ec.invisibility_of_element_located((By.XPATH, loading)))
             wait("""//*[@id="#ICClear"]""")
             print(CCN)
     print("Complete")

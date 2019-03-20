@@ -16,4 +16,4 @@ campus_df['search_course'] = campus_df['Subject'] + \
                              campus_df['Catalog Nbr'] + '.' + campus_df['Section'].str.lstrip('0')
 
 results = haas_df.merge(campus_df, on='search_course')
-results.to_csv(output, columns=output_columns)
+results.to_csv(output, columns=output_columns, index=False, header=None)
