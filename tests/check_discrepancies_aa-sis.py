@@ -7,6 +7,7 @@ import pandas as pd
 # use an "export to excel" file from course scheduling ("haas") - paste in location from file explorer "copy as path"
 # and a "uccs_r_schd_extended" report from campus solutions ("campus")
 # results will output to (and overwrite the contents of) c:\work\course_discrepancies.csv
+#
 haas = r"C:\Users\rocky_moran\Downloads\20190319_1303_Schedule.xlsx"
 campus = r"C:\Users\rocky_moran\Downloads\UCCS_R_SCHD_EXTENDED_267175394.xlsx"
 output = r'C:\work\course_discrepancies.csv'
