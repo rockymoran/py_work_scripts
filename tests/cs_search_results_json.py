@@ -5,12 +5,13 @@ from pandas.io.json import json_normalize
 import json
 import plotly as py
 import plotly.figure_factory as ff
+import config
 
 # in order for getpass to work, pycharm MUST be set up as follows:
 # Run -> Edit Configurations -> Execution -> Emulate terminal in output console
 # password = getpass.getpass()
-username = 'rocky_moran'
-password = ''
+username = config.username
+password = config.password
 
 sem = 'Fall'
 year = '2019'
@@ -89,4 +90,4 @@ with requests.Session() as s:
     df_mini = df_gantt[:10]
     print(df_mini)
     fig = ff.create_gantt(df_mini)
-    py.offline.plot(fig, filename='basic-line', auto_open=True)
+    py.offline.plot(fig, auto_open=True)
