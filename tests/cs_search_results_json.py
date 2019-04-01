@@ -78,10 +78,6 @@ with requests.Session() as s:
     df['Room'] = Rm_split[2]
     df['Start'] = pd.to_datetime(df["Start"])
     df['Finish'] = pd.to_datetime(df["Finish"])
-    # print(df.describe())
-    # print(df.dtypes)
-    # print(list(df))
-    # print(df[(df['Dual'])])
     df_gantt = df[gantt_columns]
     df_gantt.rename(columns={'Schedule_ID': 'Task'}, inplace=True)
     df_gantt.rename(columns={'Room': 'Resource'}, inplace=True)

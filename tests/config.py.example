@@ -1,5 +1,5 @@
 # Enter password in the config.py file locally.
-# Add file to .gitignore (settings -> version control -> ignored files)
+# Add file to .gitignore (file -> settings -> version control -> ignored files)
 
 username = ''
 password = ''
