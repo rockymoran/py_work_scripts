@@ -1,5 +1,6 @@
 import csv
 import time
+import login
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait, Select
@@ -11,10 +12,8 @@ from datetime import timedelta
 # load page
 chrome_path = r"C:\Work\chromedriver.exe"
 driver = webdriver.Chrome(chrome_path)
-driver.maximize_window()
-driver.get("""https://bcsint.is.berkeley.edu""")
 xpath = driver.find_element_by_xpath
-loading = """//*[@id="WAIT_win0"]"""
+loading = """//*[@id="processing"]"""
 
 
 def wait(x):
@@ -116,6 +115,7 @@ def change_times(x, y):
 
 def change_max(x=1):
     try:
+        xpath("""//*[@id="#ICPanel2"]""").click()
         wait("""//*[@id="CLASS_TBL_ENRL_CAP$0"]""")
     except:
         xpath("""//*[@id="ICTAB_1"]""").click()
@@ -250,6 +250,7 @@ def return_to_results():
 
 
 def main():
+    login.login_sis(driver, xpath, wait)
     # set semester and whether course max enrollment changes
     term = input("Term (e.g., 2985): ")
     maxes = 0
@@ -276,7 +277,7 @@ def main():
                 else:
                     break
 
-    with open(r"C:\Work\enter-days-sis-data.txt") as csvfile:
+    with open(r"C:\Work\course_discrepancies.csv") as csvfile:
         frame_wait("ptifrmtgtframe")
         file = csv.reader(csvfile, delimiter='\t')
         # file format

@@ -8,8 +8,8 @@ import pandas as pd
 # and a "uccs_r_schd_extended" report from campus solutions ("campus")
 # results will output to (and overwrite the contents of) c:\work\course_discrepancies.csv
 #
-haas = r"C:\Users\rocky_moran\Downloads\20190319_1303_Schedule.xlsx"
-campus = r"C:\Users\rocky_moran\Downloads\UCCS_R_SCHD_EXTENDED_267175394.xlsx"
+haas = r"C:\Users\rocky_moran\Downloads\20190405_1227_Schedule.xlsx"
+campus = r"C:\Users\rocky_moran\Downloads\UCCS_R_SCHD_EXTENDED_84760103.xlsx"
 output = r'C:\work\course_discrepancies.csv'
 output_columns = ["CCN", 'Days', 'StartT', 'EndT', 'Room']
 room_list = {
@@ -84,11 +84,9 @@ campus_df['campus_daytime'] = campus_df['new_day'] + campus_df['Start Time'] + c
                               campus_df['Facility ID']
 
 combine = pd.merge(haas_df, campus_df, left_on=['CCN'], right_on=["Class Nbr"])
+combine['match'] = (combine['haas_daytime'] != combine['campus_daytime'])
 combine = combine[(combine['haas_daytime'] != combine['campus_daytime'])]
 
-print(combine.head())
+print(combine)
 
 combine.to_csv(output, columns=output_columns, index=False, sep='\t', header=None)
-
-
-

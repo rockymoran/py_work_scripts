@@ -1,15 +1,12 @@
 import requests
-import getpass
 import pandas as pd
 from pandas.io.json import json_normalize
 import json
 import plotly as py
 import plotly.figure_factory as ff
 import config
+import plotly.graph_objs as go
 
-# in order for getpass to work, pycharm MUST be set up as follows:
-# Run -> Edit Configurations -> Execution -> Emulate terminal in output console
-# password = getpass.getpass()
 username = config.username
 password = config.password
 
@@ -59,7 +56,7 @@ payload = {
 }
 
 columns = ['Schedule_ID', 'Course', 'Rm',  'Dates', 'DualListPrimary', 'Dual']
-gantt_columns = ['Schedule_ID', 'Start', 'Finish', 'Room']
+gantt_columns = ['Schedule_ID', 'Start', 'Finish', 'Room', 'Days']
 
 login_url = 'https://api.haas.berkeley.edu/Account/Login'
 search_url = 'https://api.haas.berkeley.edu/Search/JsonRefreshSearchGrid'
@@ -70,20 +67,21 @@ with requests.Session() as s:
     r = json_normalize(json.loads(s.get(url=search_url, params=search_model_params).text))
     df = pd.DataFrame.from_dict(r, orient='columns')[columns]
     df = df.drop(df[(df['Dual']) & (~df['DualListPrimary'])].index)
+    df['Schedule_ID'] = df['Schedule_ID'].apply(str)
     Rm_split = df['Rm'].str.split(n=0, expand=True)
     time_split = Rm_split[1].str.split('-', n=0, expand=True)
     df['Days'] = Rm_split[0]
     df['Start'] = time_split[0]
     df['Finish'] = time_split[1]
     df['Room'] = Rm_split[2]
-    df['Start'] = pd.to_datetime(df["Start"])
-    df['Finish'] = pd.to_datetime(df["Finish"])
+    df['Start'] = pd.to_datetime(df['Start'])
+    df['Finish'] = pd.to_datetime(df['Finish'])
     df_gantt = df[gantt_columns]
     df_gantt.rename(columns={'Schedule_ID': 'Task'}, inplace=True)
     df_gantt.rename(columns={'Room': 'Resource'}, inplace=True)
     df_gantt.drop_duplicates(inplace=True)
     df_gantt.dropna(inplace=True)
-    df_mini = df_gantt[:10]
-    print(df_mini)
-    fig = ff.create_gantt(df_mini)
+    df_mini = df_gantt.loc[(df_gantt['Resource'] == 'C125') & (df_gantt['Days'] == 'T')]
+    fig = ff.create_gantt(df_mini.reset_index(drop=True), index_col='Resource', title='Dog Chart Woof',
+                          showgrid_x=True, showgrid_y=True)
     py.offline.plot(fig, auto_open=True)

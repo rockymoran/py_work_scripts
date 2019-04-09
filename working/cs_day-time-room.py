@@ -1,5 +1,6 @@
 import csv
 import time
+import login
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait, Select
@@ -10,16 +11,8 @@ from selenium.webdriver.common.keys import Keys
 # load page
 chrome_path = r"C:\Work\chromedriver.exe"
 driver = webdriver.Chrome(chrome_path)
-driver.maximize_window()
-website = """https://api.haas.berkeley.edu/Search"""
-driver.get(website)
 xpath = driver.find_element_by_xpath
 
-
-# file format
-# CCN   DAY     START   END     START_DATE  END_DATE     ROOM
-# 00001 MW      10:00AM 12:30PM 5/19/2035   6/24/2035    C125
-# 00002 TTh     9:30AM  11:00AM 5/19/2035   6/24/2035    N300
 
 def wait(x):
     WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, x)))
@@ -41,6 +34,9 @@ class Course:
         self.start_d = start_d
         self.end_d = end_d
 
+
+# login
+login.login_cs(driver, xpath, wait)
 
 # set semester
 term = input("Semester and year (e.g., Spring 2142): ")
@@ -68,6 +64,11 @@ while (editMode == 0) or (editMode > 2):
                 continue
             else:
                 break
+
+# file format
+# CCN/SID   DAY     START   END     ROOM     START_DATE  END_DATE
+# 00001     MW      10:00AM 12:30PM C135     5/19/2035   6/24/2035
+# 00002     TTh     9:30AM  11:00AM N440     5/19/2035   6/24/2035
 
 with open(r"C:\Work\rooms.txt") as csvfile:
     file = csv.reader(csvfile, delimiter='\t')
@@ -141,5 +142,5 @@ with open(r"C:\Work\rooms.txt") as csvfile:
             print(current_course.recordID)
         except:
             time.sleep(3)
-            driver.get(website)
+            driver.get("""https://api.haas.berkeley.edu""")
             print("Potential issue: ", current_course.recordID)
