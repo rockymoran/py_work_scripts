@@ -10,4 +10,5 @@ df['Course'], df['Date'] = df['NewCourseEvalDates'].str.split(':', 1).str
 df = df[(df['NewCourseEvalDates'].str.contains('/') == True)]
 df = df[(df['Date'].str.contains('-') == False)]
 df.reset_index(inplace=True, drop=True)
+df['Date'] = pd.to_datetime(df.Date, infer_datetime_format=True)
 print(df)
