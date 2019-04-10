@@ -8,10 +8,13 @@ import pandas as pd
 # and a "uccs_r_schd_extended" report from campus solutions ("campus")
 # results will output to (and overwrite the contents of) c:\work\course_discrepancies.csv
 #
-haas = r"C:\Users\rocky_moran\Downloads\20190405_1227_Schedule.xlsx"
-campus = r"C:\Users\rocky_moran\Downloads\UCCS_R_SCHD_EXTENDED_84760103.xlsx"
-output = r'C:\work\course_discrepancies.csv'
-output_columns = ["CCN", 'Days', 'StartT', 'EndT', 'Room']
+haas = r"C:\Users\rocky_moran\Downloads\20190410_1333_Schedule.xlsx"
+campus = r"C:\Users\rocky_moran\Downloads\UCCS_R_SCHD_EXTENDED_735960093.xlsx"
+output_room = r'C:\work\course_discrepancies.csv'
+output_inst = r'C:\work\instructor_discrepancies.csv'
+output_rooms_columns = ["CCN", 'Days', 'StartT', 'EndT', 'Room']
+output_inst_columns = ["CCN", "Inst"]
+
 room_list = {
     "C110": "CHEIC110",
     "C125": "CHEIC125",
@@ -64,6 +67,7 @@ days_list = {
 
 haas_df = pd.read_excel(haas)
 Rm_split = haas_df['Rm'].str.split(n=0, expand=True)
+Inst_split = haas_df['Inst'].str.split(pat=',', n=1, expand=True)
 time_split = Rm_split[1].str.split('-', n=0, expand=True)
 haas_df['Days'] = Rm_split[0]
 haas_df['StartT'] = time_split[0]
@@ -73,8 +77,10 @@ haas_df['new_room'] = haas_df['Room'].map(room_list)
 haas_df['StartT'] = pd.to_datetime(haas_df["StartT"]).dt.strftime("%I:%M%p")
 haas_df['EndT'] = pd.to_datetime(haas_df["EndT"]).dt.strftime("%I:%M%p")
 haas_df['haas_daytime'] = haas_df['Days'] + haas_df['StartT'] + haas_df['EndT'] + haas_df['new_room']
+haas_df['haas_inst_lname'] = Inst_split[0]
 
 campus_df = pd.read_excel(campus, skiprows=1)
+Inst_split = campus_df['Instructor Name'].str.split(pat=',', n=1, expand=True)
 campus_df['Class Nbr'] = campus_df['Class Nbr'].astype(str)
 campus_df['new_day'] = campus_df['Meeting Days (MTWRFSU)'].map(days_list)
 campus_df['Start Time'] = pd.to_datetime(campus_df["Start Time"]).dt.strftime("%I:%M%p")
@@ -82,11 +88,14 @@ campus_df['End Time'] = pd.to_datetime(campus_df['End Time']) + pd.Timedelta(min
 campus_df['End Time'] = pd.to_datetime(campus_df["End Time"]).dt.strftime("%I:%M%p")
 campus_df['campus_daytime'] = campus_df['new_day'] + campus_df['Start Time'] + campus_df['End Time'] + \
                               campus_df['Facility ID']
+campus_df['campus_inst_lname'] = Inst_split[0]
 
 combine = pd.merge(haas_df, campus_df, left_on=['CCN'], right_on=["Class Nbr"])
-combine['match'] = (combine['haas_daytime'] != combine['campus_daytime'])
-combine = combine[(combine['haas_daytime'] != combine['campus_daytime'])]
+combine_room = combine[(combine['haas_daytime'] != combine['campus_daytime'])]
+combine_inst = combine[(combine['haas_inst_lname'] != combine['campus_inst_lname'])]
 
-print(combine)
+print(combine_room)
+print(combine_inst)
 
-combine.to_csv(output, columns=output_columns, index=False, sep='\t', header=None)
+combine_room.to_csv(output_room, columns=output_rooms_columns, index=False, sep='\t', header=None)
+combine_inst.to_csv(output_inst, columns=output_inst_columns, index=False, sep='\t', header=None)

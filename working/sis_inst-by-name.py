@@ -76,10 +76,11 @@ class EmployeeSearch:
 # 19755 Walker, William
 
 def main():
+    sis_day_time.login.login_sis(driver, xpath, wait)
     term = input("Which term? (e.g. 2278): ")
     frame_wait("ptifrmtgtframe")
     frame_count = 0
-    with open(r"C:\Work\enter-inst-sis-data.txt") as csvfile:
+    with open(r"C:\Work\instructor_discrepancies.csv") as csvfile:
         file = csv.reader(csvfile, delimiter='\t')
         for row in file:
             ccn = row[0]
