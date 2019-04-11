@@ -1,10 +1,14 @@
 import subprocess
 import time
+import os
+import pandas as pd
 
-f = open(r"c:\Work\output_trt.txt", 'w')
+file = r"c:\Work\output_trt.txt"
+max_filesize = 1_000_000
 
 
-def TraceRoute():
+def trace_route():
+        f = open(file, 'a')
         replace_dic = ['b\'', '\'', '\'b', '\\r', '\\n']
 
         def replace_all(text, dic):
@@ -20,13 +24,22 @@ def TraceRoute():
         while True:
                 hop = traceroute.stdout.readline()
                 if not hop:
-                    break
+                        f.write('\n')
+                        break
                 hop = replace_all(str(hop), replace_dic).strip()
                 print(hop)
                 f.write(hop + '\n')
+        f.close()
+        if os.path.getsize(file) > max_filesize:
+                clean_file()
 
 
-for n in range(2):
-        TraceRoute()
-        time.sleep(15)
-f.close()
+def clean_file():
+        df = pd.read_csv(file, sep='\n', skiprows=16, skip_blank_lines=False)
+        df.to_csv(file, index=False, na_rep=" ")
+
+
+if __name__ == '__main__':
+        for n in range(1):
+                trace_route()
+                time.sleep(1)
