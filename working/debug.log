@@ -95,3 +95,13 @@
 [0306/130927.372:ERROR:exception_snapshot_win.cc(88)] thread ID 12812 not found in process
 [0306/130927.372:WARNING:crash_report_exception_handler.cc(62)] ProcessSnapshotWin::Initialize failed
 [0507/203117.230:ERROR:prune_crash_reports.cc(34)] PruneCrashReportDatabase: Failed to get pending reports
+[0510/150739.141:ERROR:prune_crash_reports.cc(34)] PruneCrashReportDatabase: Failed to get pending reports
+[0511/150738.705:ERROR:prune_crash_reports.cc(34)] PruneCrashReportDatabase: Failed to get pending reports
+[0512/150737.849:ERROR:prune_crash_reports.cc(34)] PruneCrashReportDatabase: Failed to get pending reports
+[0513/150809.635:ERROR:prune_crash_reports.cc(34)] PruneCrashReportDatabase: Failed to get pending reports
+[0514/150809.036:ERROR:prune_crash_reports.cc(34)] PruneCrashReportDatabase: Failed to get pending reports
+[0516/150807.875:ERROR:prune_crash_reports.cc(34)] PruneCrashReportDatabase: Failed to get pending reports
+[0517/150807.165:ERROR:prune_crash_reports.cc(34)] PruneCrashReportDatabase: Failed to get pending reports
+[0518/150806.578:ERROR:prune_crash_reports.cc(34)] PruneCrashReportDatabase: Failed to get pending reports
+[0519/150805.804:ERROR:prune_crash_reports.cc(34)] PruneCrashReportDatabase: Failed to get pending reports
+[0520/150805.097:ERROR:prune_crash_reports.cc(34)] PruneCrashReportDatabase: Failed to get pending reports

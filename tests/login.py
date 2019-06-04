@@ -23,3 +23,13 @@ def login_cs(driver, xpath, wait):
     xpath("""//*[@id="Password"]""").send_keys(config.password)
     xpath("""//*[@id="loginForm"]/form/div/div[3]/input""").click()
     return
+
+
+def login_bCourses(driver, xpath, wait):
+    driver.maximize_window()
+    driver.get("""https://bcourses.berkeley.edu""")
+    wait("""//*[@id="submit"]""")
+    xpath("""//*[@id="username"]""").send_keys(config.username)
+    xpath("""//*[@id="password"]""").send_keys(config.password)
+    xpath("""//*[@id="submit"]""").click()
+    return

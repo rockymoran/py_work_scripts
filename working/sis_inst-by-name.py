@@ -77,7 +77,7 @@ class EmployeeSearch:
 
 def main():
 
-    file = r"C:\Work\instructor_discrepancies.csv"
+    file = r"H:\documents\Work\enter-inst-sis-data.txt"
 
     sis_day_time.login.login_sis(driver, xpath, wait)
     term = input("Which term? (e.g. 2278): ")

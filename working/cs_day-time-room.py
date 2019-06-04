@@ -142,5 +142,5 @@ with open(r"C:\Work\rooms.txt") as csvfile:
             print(current_course.recordID)
         except:
             time.sleep(3)
-            driver.get("""https://api.haas.berkeley.edu""")
+            driver.get("""https://api.haas.berkeley.edu/Search""")
             print("Potential issue: ", current_course.recordID)

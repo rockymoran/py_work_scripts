@@ -1,18 +1,16 @@
 import csv
 import time
+import login
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait, Select
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import WebDriverException
-from selenium.webdriver.common.keys import Keys
-# from selenium.webdriver.common.action_chains import ActionChains
+
 
 # load page
 chrome_path = r"C:\Work\chromedriver.exe"
 driver = webdriver.Chrome(chrome_path)
-driver.maximize_window()
-driver.get("""https://api.haas.berkeley.edu/Search""")
 xpath = driver.find_element_by_xpath
 
 
@@ -36,6 +34,7 @@ while (usedID == 0) or (usedID > 2):
             else:
                 break
 
+login.login_cs(driver, xpath, wait)
 
 with open(r"C:\Work\dates.txt") as csvfile:
     file = csv.reader(csvfile, delimiter='\t')
@@ -56,6 +55,7 @@ with open(r"C:\Work\dates.txt") as csvfile:
             xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""").send_keys(term)
         time.sleep(1)
         wait("""//*[@id="searchModel_CCN"]""")
+        wait("""//*[@id="searchModel_Schedule_ID"]""")
         if usedID > 1:
             xpath("""//*[@id="searchModel_Schedule_ID"]""").clear()
             xpath("""//*[@id="searchModel_Schedule_ID"]""").send_keys(recordID)
@@ -89,5 +89,5 @@ with open(r"C:\Work\dates.txt") as csvfile:
         except Exception as e:
             time.sleep(3)
             driver.get("""https://api.haas.berkeley.edu/Search""")
-            print(recordID & ": Error - " & e)
+            print(recordID)
 
