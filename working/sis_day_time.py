@@ -167,7 +167,6 @@ def find_max(x):
 
 
 def change_room(x):
-    key = x
     room_list = {
         "C110": "CHEIC110",
         "C125": "CHEIC125",
@@ -205,7 +204,7 @@ def change_room(x):
         "S300T": "HAASS300T"
     }
     xpath("""//*[@id="CLASS_MTG_PAT_FACILITY_ID$0"]""").clear()
-    xpath("""//*[@id="CLASS_MTG_PAT_FACILITY_ID$0"]""").send_keys(room_list.get(key, "none"))
+    xpath("""//*[@id="CLASS_MTG_PAT_FACILITY_ID$0"]""").send_keys(room_list.get(x, "none"))
     save_record()
     time.sleep(1.5)
     try:
@@ -302,12 +301,12 @@ def main():
             except IndexError:
                 skip_room = True
             sis_search(CCN, term)
-            WebDriverWait(driver, 15).until(ec.invisibility_of_element_located((By.XPATH, loading)))
+            WebDriverWait(driver, 5).until(ec.invisibility_of_element_located((By.XPATH, loading)))
             if maxes == 1:
                 change_max()
                 save_record()
             xpath("""//*[@id="ICTAB_0"]""").click()
-            WebDriverWait(driver, 15).until(ec.invisibility_of_element_located((By.XPATH, loading)))
+            WebDriverWait(driver, 5).until(ec.invisibility_of_element_located((By.XPATH, loading)))
             wait("""// *[ @ id = "CLASS_MTG_PAT_STND_MTG_PAT$0"]""")
             change_days(days)
             time.sleep(1)
@@ -318,10 +317,10 @@ def main():
             save_record()
             if maxes == 1:
                 change_max(room_max)
-            WebDriverWait(driver, 15).until(ec.invisibility_of_element_located((By.XPATH, loading)))
+            WebDriverWait(driver, 5).until(ec.invisibility_of_element_located((By.XPATH, loading)))
             save_record()
             return_to_results()
-            WebDriverWait(driver, 15).until(ec.invisibility_of_element_located((By.XPATH, loading)))
+            WebDriverWait(driver, 5).until(ec.invisibility_of_element_located((By.XPATH, loading)))
             wait("""//*[@id="#ICClear"]""")
             print(CCN)
     print("Complete")

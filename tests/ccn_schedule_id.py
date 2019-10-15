@@ -2,8 +2,8 @@ import pandas as pd
 
 # use a "export to excel" file from course scheduling and a "uccs_r_schd_extended" report from campus solutions
 # results will output to (and overwrite the contents of) a file in c:\work\sched_id_import.csv
-haas = r'C:\Users\rocky_moran\Downloads\20190315_1315_Schedule.xlsx'
-campus = r'C:\Users\rocky_moran\Downloads\UCCS_R_SCHD_EXTENDED_918891884.xlsx'
+haas = r"C:\Users\rocky_moran\Downloads\20190927_1103_Schedule.xlsx"
+campus = r"C:\Users\rocky_moran\Downloads\UCCS_R_SCHD_EXTENDED_1817985624.xlsx"
 output = r'C:\work\sched_id_import.csv'
 output_columns = ["schedule_ID", "Class Nbr"]
 

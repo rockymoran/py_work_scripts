@@ -1,19 +1,33 @@
 import pandas as pd
+import tkinter as tk
+from tkinter import filedialog
 
 # Checks current Haas Course Schedule with current Campus Solutions Course Schedule for discrepancies with day/time/room
+# instructors and courses that are printed/print suppressed.
 # Compares using CCN/Course Nbr. Any course that does not have a CCN will not have a result.
 # Result file should be visually checked for obvious reasons for discrepancies
 # (e.g., campus room assignment or no times), then file can be ran using "sis_day_time.py" module to do data entry.
 # use an "export to excel" file from course scheduling ("haas") - paste in location from file explorer "copy as path"
 # and a "uccs_r_schd_extended" report from campus solutions ("campus")
-# results will output to (and overwrite the contents of) c:\work\course_discrepancies.csv
+# results will output to (and overwrite the contents of):
+# c:\work\course_discrepancies.csv
+# c:\work\instructor_discrepancies.csv
+# C:\work\print_discrepancies.csv
 #
-haas = r"C:\Users\rocky_moran\Downloads\20190412_1117_Schedule.xlsx"
-campus = r"C:\Users\rocky_moran\Downloads\UCCS_R_SCHD_EXTENDED_1509622683.xlsx"
+
+root = tk.Tk()
+root.withdraw()
+
+haas = filedialog.askopenfilename(title='Please select the Haas Course Scheduling "Export to Excel" file.',
+                                  filetypes=[('Excel', '.xlsx')])
+campus = filedialog.askopenfilename(title='Please select the SIS "uccs_r_schd_extended" report from campus.',
+                                    filetypes=[('Excel', '.xlsx')])
 output_room = r'C:\work\course_discrepancies.csv'
 output_inst = r'C:\work\instructor_discrepancies.csv'
+output_print = r'C:\work\print_discrepancies.csv'
 output_rooms_columns = ["CCN", 'Days', 'StartT', 'EndT', 'Room']
 output_inst_columns = ["CCN", "Inst"]
+output_print_suppress = ['Print Course', "Schedule Print"]
 
 room_list = {
     "C110": "CHEIC110",
@@ -89,13 +103,23 @@ campus_df['End Time'] = pd.to_datetime(campus_df["End Time"]).dt.strftime("%I:%M
 campus_df['campus_daytime'] = campus_df['new_day'] + campus_df['Start Time'] + campus_df['End Time'] + \
                               campus_df['Facility ID']
 campus_df['campus_inst_lname'] = Inst_split[0]
+campus_df['Section'] = campus_df['Section'].apply(str)
+campus_df['Print Course'] = campus_df["Subject"] + campus_df["Catalog Nbr"] + "." + campus_df["Section"]
 
-combine = pd.merge(haas_df, campus_df, left_on=['CCN'], right_on=["Class Nbr"])
-combine_room = combine[(combine['haas_daytime'] != combine['campus_daytime'])]
-combine_inst = combine[(combine['haas_inst_lname'] != combine['campus_inst_lname'])]
+combine = pd.merge(haas_df, campus_df, left_on=['CCN'], right_on=["Class Nbr"], indicator=True, how='outer')
+combine_room = combine[(combine['haas_daytime'] != combine['campus_daytime']) & (combine['_merge'] == "both")]
+combine_room = combine_room[output_rooms_columns].drop_duplicates()
+combine_inst = combine[(combine['haas_inst_lname'] != combine['campus_inst_lname']) & (combine['_merge'] == "both")]
+combine_inst = combine_inst[output_inst_columns].drop_duplicates()
+combine_inst = combine_inst[(combine_inst['Inst'] != 'TBD, Instructor') & (combine_inst['Inst'] != 'TBD, GSI')].dropna()
+combine_print = combine[((combine['Schedule Print'] == "N") & (combine['_merge'] == "both")) |
+                        ((combine['Schedule Print'] == "Y") & (combine['_merge'] == "right_only"))]
+combine_print = combine_print[output_print_suppress].drop_duplicates()
 
-print(combine_room)
-print(combine_inst)
+# print(combine_room)
+# print(combine_inst)
+# print(combine_print.columns)
 
-combine_room.to_csv(output_room, columns=output_rooms_columns, index=False, sep='\t', header=None)
-combine_inst.to_csv(output_inst, columns=output_inst_columns, index=False, sep='\t', header=None)
+combine_room.to_csv(output_room, index=False, sep='\t', header=None)
+combine_inst.to_csv(output_inst, index=False, sep='\t', header=None)
+combine_print.to_csv(output_print, index=False, sep='\t', header=None)

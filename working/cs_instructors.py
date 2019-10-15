@@ -1,5 +1,6 @@
 import csv
 import time
+import login
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait, Select
@@ -9,11 +10,8 @@ from selenium.common.exceptions import WebDriverException
 # from selenium.webdriver.common.action_chains import ActionChains
 
 # load page
-chrome_path = r"C:\Work\chromedriver.exe"
+chrome_path = r"c:\Work\chromedriver.exe"
 driver = webdriver.Chrome(chrome_path)
-driver.maximize_window()
-website = """https://api.haas.berkeley.edu/Search"""
-driver.get(website)
 xpath = driver.find_element_by_xpath
 
 
@@ -31,6 +29,8 @@ def wait_invis(x):
     WebDriverWait(driver, 10).until(EC.invisibility_of_element_located((By.XPATH, x)))
     return
 
+
+login.login_cs(driver, xpath, wait)
 
 # set semester
 term = input("Semester and year (e.g., Spring 2142): ")
@@ -67,7 +67,7 @@ with open(r"C:\Work\inst_cs.txt") as csvfile:
         try:
             wait("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""")
         except WebDriverException:
-            driver.get(website)
+            driver.get("""https://coursescheduling.haas.berkeley.edu/Search""")
             wait("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""")
         xpath("""//*[@id="Clear"]""")
         wait("""//*[@id="SearchForm"]/div[1]/div[2]/div[3]/span/span/input""")
@@ -82,10 +82,13 @@ with open(r"C:\Work\inst_cs.txt") as csvfile:
         else:
             xpath("""//*[@id="searchModel_CCN"]""").clear()
             xpath("""//*[@id="searchModel_CCN"]""").send_keys(recordID)
+        wait("""//*[@id="SearchButton"]""")
         xpath("""//*[@id="SearchButton"]""").click()
+        time.sleep(1)
         wait("""//*[@id="GridCSList"]/table/tbody/tr/td[2]/a""")
         time.sleep(1)
-        wait_invis("""//div[@class='modal-backdrop fade in']""")
+        WebDriverWait(driver, 30).until(EC.invisibility_of_element_located((By.XPATH, """/html/body/div[16]/div[1]""")))
+        time.sleep(1)
         xpath("""//*[@id="GridCSList"]/table/tbody/tr/td[2]/a""").click()
         wait_invis("""//div[@class=’k-loading-mask’]""")
         if editMode > 1:
@@ -106,8 +109,8 @@ with open(r"C:\Work\inst_cs.txt") as csvfile:
         try:
             xpath("""//*[@id="Searchbutton"]""").click()
             print(recordID)
-        except:
+        except Exception as e:
             time.sleep(3)
-            driver.get(website)
+            driver.get("""https://coursescheduling.haas.berkeley.edu/Search""")
             print("Potential issue: ", recordID)
 

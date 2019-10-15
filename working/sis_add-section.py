@@ -1,20 +1,21 @@
 import csv
 import time
+import re
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException, InvalidElementStateException
+from working import sis_day_time
 
-
-def wait(x):
-    WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, x)))
-    return
-
-
-def frame_wait(x):
-    WebDriverWait(driver, 50).until(EC.frame_to_be_available_and_switch_to_it(x))
-    return
+wait = sis_day_time.wait
+xpath = sis_day_time.xpath
+sis_search = sis_day_time.sis_search
+save_record = sis_day_time.save_record
+return_to_results = sis_day_time.return_to_results
+frame_wait = sis_day_time.frame_wait
+driver = sis_day_time.driver
+WebDriverWait = sis_day_time.WebDriverWait
 
 
 def url_wait(x):
@@ -22,7 +23,7 @@ def url_wait(x):
     return
 
 
-def sis_search(w, x, y, z="UCB01"):
+def addnew_search(w, x, y, z="UCB01"):
     xpath("""//*[@id="#ICClear"]""").click()
     time.sleep(1.5)
     xpath("""//*[@id="CRSE_OFFER_SCTY_INSTITUTION"]""").send_keys(z)
@@ -38,10 +39,18 @@ def sis_search(w, x, y, z="UCB01"):
 
 
 def section_info(x):
+    y = x
     if xpath("""//*[@id="CLASS_TBL_CLASS_NBR$0"]""").text != "0":
         xpath("""//*[@id="$ICField21$new$0$$0"]""").click()
         wait("""//*[@id="CLASS_TBL_EMPLID$prompt$img$0"]""")
-    xpath("""//*[@id="CLASS_TBL_CLASS_SECTION$0"]""").send_keys(x)
+    while len(y) < 3:
+        y = "0" + y
+    xpath("""//*[@id="CLASS_TBL_CLASS_SECTION$0"]""").send_keys(y)
+    try:
+        xpath("""//*[@id="CLASS_TBL_ASSOCIATED_CLASS$0"]""").clear()
+        xpath("""//*[@id="CLASS_TBL_ASSOCIATED_CLASS$0"]""").send_keys(re.sub("\D", "", x))
+    except InvalidElementStateException:
+        pass
     return
 
 
@@ -53,32 +62,28 @@ def schedule_print(x):
     return
 
 
-def save_record():
-    xpath("""//*[@id="#ICSave"]""").click()
-    time.sleep(2)
-    WebDriverWait(driver, 50).until(EC.invisibility_of_element_located((By.ID, "SAVED_win0")))
-    return
+# def save_record():
+#     xpath("""//*[@id="#ICSave"]""").click()
+#     time.sleep(2)
+#     WebDriverWait(driver, 50).until(EC.invisibility_of_element_located((By.ID, "SAVED_win0")))
+#     return
 
 
-def return_to_results():
-    xpath("""//*[@id="#ICList"]""").click()
-    try:
-        elem = xpath("""//*[@id="#ALERTYES"]""")
-        if elem.is_displayed():
-            elem.click()
-            wait("""//*[@id="#ICSave"]""")
-            xpath("""//*[@id="#ICSave"]""").click()
-    except NoSuchElementException:
-        pass
-    return
+# def return_to_results():
+#     xpath("""//*[@id="#ICList"]""").click()
+#     try:
+#         elem = xpath("""//*[@id="#ALERTYES"]""")
+#         if elem.is_displayed():
+#             elem.click()
+#             wait("""//*[@id="#ICSave"]""")
+#             xpath("""//*[@id="#ICSave"]""").click()
+#     except NoSuchElementException:
+#         pass
+#     return
 
 
 # load page
-chrome_path = r"C:\Work\chromedriver.exe"
-driver = webdriver.Chrome(chrome_path)
-driver.maximize_window()
-driver.get("""https://bcsint.is.berkeley.edu""")
-xpath = driver.find_element_by_xpath
+sis_day_time.login.login_sis(driver, xpath, wait)
 
 # set semester, schedule print, ccn variable
 term = input("Term (e.g., 2985): ")
@@ -100,7 +105,7 @@ with open(r"C:\Work\new-section-sis-data.txt") as csvfile:
         course_number = row[1]
         section = row[2]
         sid = row[3]
-        sis_search(subject, course_number, term)
+        addnew_search(subject, course_number, term)
         time.sleep(1)
         try:  # test whether search goes directly to results, or first record must be clicked
             wait("""//*[@id="CLASS_TBL_SESSION_CODE$0"]""")

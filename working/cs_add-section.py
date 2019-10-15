@@ -1,5 +1,6 @@
 import csv
 import time
+import login
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -9,8 +10,6 @@ from selenium.webdriver.common.keys import Keys
 # load page
 chrome_path = r"C:\Work\chromedriver.exe"
 driver = webdriver.Chrome(chrome_path)
-driver.maximize_window()
-driver.get("""https://api.haas.berkeley.edu/Search""")
 xpath = driver.find_element_by_xpath
 
 
@@ -22,7 +21,11 @@ def wait(x):
 # set semester
 term = input("Semester and year (e.g., Spring 2042): ")
 
+# login
+login.login_cs(driver, xpath, wait)
 
+# example file format (tabs)
+# PHDBA299A	1	Dal Bo, E	19011	6	ind working title
 with open(r"C:\Work\ind.txt") as csvfile:
     file = csv.reader(csvfile, delimiter='\t')
     for row in file:
@@ -46,17 +49,27 @@ with open(r"C:\Work\ind.txt") as csvfile:
         wait("""//*[@id="InstructorGrid"]/table/tbody/tr/td[1]/a/span""")
         xpath("""//*[@id="InstructorGrid"]/table/tbody/tr/td[1]/a/span""").click()
         wait("""//*[@id="InstructorGrid"]/table/tbody/tr/td[2]/span[1]/span/input""")
+        time.sleep(1)
+        xpath("""//*[@id="InstructorGrid"]/table/tbody/tr/td[2]/span[1]/span/input""").send_keys()
+        time.sleep(1)
+        xpath("""//*[@id="InstructorGrid"]/table/tbody/tr/td[1]/a[1]/span""").click()
+        # enter inst again
+        wait("""//*[@id="InstructorGrid"]/table/tbody/tr/td[1]/a""")
+        xpath("""//*[@id="InstructorGrid"]/table/tbody/tr/td[1]/a/span""").click()
+        wait("""//*[@id="InstructorGrid"]/table/tbody/tr/td[2]/span[1]/span/input""")
         xpath("""//*[@id="InstructorGrid"]/table/tbody/tr/td[2]/span[1]/span/input""").clear()
         xpath("""//*[@id="InstructorGrid"]/table/tbody/tr/td[2]/span[1]/span/input""").send_keys(row[2])
-        time.sleep(1)
-        driver.find_element_by_css_selector("""#InstructorGrid > table > tbody > tr > td:nth-child(2) > 
-        span.k-widget.k-combobox.k-header.k-combobox-clearable > span > input""").send_keys(Keys.DOWN)
+        time.sleep(.5)
+        xpath("""//*[@id="InstructorGrid"]/table/tbody/tr/td[2]/span[1]/span/input""").send_keys(Keys.DOWN)
         xpath("""//*[@id="InstructorGrid"]/table/tbody/tr/td[1]/a[1]/span""").click()
-        time.sleep(1)
-        wait("""//*[@id="Searchbutton"]""")
         try:
-            xpath("""//*[@id="Searchbutton"]""").click()
+            xpath("""//*[@id="WTitleText"]""").clear()
+            time.sleep(1)
+            xpath("""//*[@id="WTitleText"]""").send_keys(row[6])
+            xpath("""//*[@id="Savebutton"]""").click()
+            wait("""/html/body/div[8]/div[2]/div/div/div/div/div[4]/button""")
+            xpath("""/html/body/div[9]/div[2]/div/div/div/div/div[4]/button""").click()
         except:
-            time.sleep(3)
-            driver.get("""https://api.haas.berkeley.edu/Search""")
+            pass
+        driver.get("""https://coursescheduling.haas.berkeley.edu/Search""")
         print(row[3])

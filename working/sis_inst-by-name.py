@@ -5,7 +5,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.common.exceptions import NoSuchFrameException
 from working import sis_day_time
-# import re
 
 wait = sis_day_time.wait
 xpath = sis_day_time.xpath
@@ -21,10 +20,10 @@ WebDriverWait = sis_day_time.WebDriverWait
 class EmployeeSearch:
     # open instructor search window
     search_glass = """//*[@id="CLASS_INSTR_EMPLID$prompt$img$0"]"""
-    search_lname = """//*[@id="INSTR_ORG_DVW_LAST_NAME_SRCH"]"""
-    search_fname = """//*[@id="INSTR_ORG_DVW_FIRST_NAME_SRCH"]"""
+    search_lname = """//*[@id="UC_INSTR_VW2_LAST_NAME_SRCH"]"""
+    search_fname = """//*[@id="UC_INSTR_VW2_FIRST_NAME_SRCH"]"""
     search_click = """//*[@id="#ICSearch"]"""
-    first_result = """//*[@id="RESULT14$0"]"""
+    first_result = """//*[@id="SEARCH_RESULT1"]"""
     search_cancel = """//*[@id="#ICCancel"]"""
     instructor_role_drop = """//*[@id="CLASS_INSTR_INSTR_ROLE$0"]"""
     proxy = "APRX"
@@ -77,7 +76,7 @@ class EmployeeSearch:
 
 def main():
 
-    file = r"H:\documents\Work\enter-inst-sis-data.txt"
+    file = r"C:\Work\instructor_discrepancies.csv"
 
     sis_day_time.login.login_sis(driver, xpath, wait)
     term = input("Which term? (e.g. 2278): ")

@@ -17,7 +17,7 @@ def login_sis(driver, xpath, wait):
 
 def login_cs(driver, xpath, wait):
     driver.maximize_window()
-    driver.get("""https://api.haas.berkeley.edu""")
+    driver.get("""https://coursescheduling.haas.berkeley.edu""")
     wait("""//*[@id="loginForm"]/form/div/div[3]/input""")
     xpath("""//*[@id="UserName"]""").send_keys(config.username)
     xpath("""//*[@id="Password"]""").send_keys(config.password)

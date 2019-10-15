@@ -9,7 +9,7 @@ from selenium.common.exceptions import WebDriverException
 
 
 # load page
-chrome_path = r"C:\Work\chromedriver.exe"
+chrome_path = r"c:\Work\chromedriver.exe"
 driver = webdriver.Chrome(chrome_path)
 xpath = driver.find_element_by_xpath
 
@@ -18,6 +18,8 @@ def wait(x):
     WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, x)))
     return
 
+
+login.login_cs(driver, xpath, wait)
 
 # set semester
 term = input("Semester and year (e.g., Spring 2142): ").strip()
@@ -34,7 +36,6 @@ while (usedID == 0) or (usedID > 2):
             else:
                 break
 
-login.login_cs(driver, xpath, wait)
 
 with open(r"C:\Work\dates.txt") as csvfile:
     file = csv.reader(csvfile, delimiter='\t')
@@ -88,6 +89,6 @@ with open(r"C:\Work\dates.txt") as csvfile:
             print(recordID)
         except Exception as e:
             time.sleep(3)
-            driver.get("""https://api.haas.berkeley.edu/Search""")
+            driver.get("""https://coursescheduling.haas.berkeley.edu/Search""")
             print(recordID)
 
