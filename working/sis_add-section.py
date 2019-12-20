@@ -119,7 +119,7 @@ with open(r"C:\Work\new-section-sis-data.txt") as csvfile:
         ccn = xpath("""//*[@id="CLASS_TBL_CLASS_NBR$0"]""").text
         return_to_results()
         wait("""//*[@id="#ICClear"]""")
-        print(sid, ",", ccn)  # Prints results to screen for pasting into CSV and import.
+        print(sid.strip(), ",", ccn.strip())  # Prints results to screen for pasting into CSV and import.
 print("Complete")
 
 

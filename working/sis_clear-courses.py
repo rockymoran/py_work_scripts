@@ -3,26 +3,20 @@
 import time, csv
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait, Select
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
-from selenium.common.exceptions import NoSuchElementException, TimeoutException, StaleElementReferenceException
+from selenium.common.exceptions import NoSuchElementException
+from working import sis_day_time
 
+wait = sis_day_time.wait
+xpath = sis_day_time.xpath
+sis_search = sis_day_time.sis_search
+save_record = sis_day_time.save_record
+return_to_results = sis_day_time.return_to_results
+frame_wait = sis_day_time.frame_wait
+driver = sis_day_time.driver
+WebDriverWait = sis_day_time.WebDriverWait
 
-def save_record():
-    xpath("""//*[@id="#ICSave"]""").click()
-    time.sleep(2)
-    WebDriverWait(driver, 50).until(ec.invisibility_of_element_located((By.ID, "SAVED_win0")))
-    return
-
-
-def wait(x):
-    WebDriverWait(driver, 10).until(ec.element_to_be_clickable((By.XPATH, x)))
-    return
-
-
-def frame_wait(x):
-    WebDriverWait(driver, 50).until(ec.frame_to_be_available_and_switch_to_it(x))
-    return
 
 
 def url_wait(x):
@@ -93,11 +87,12 @@ class Meetings:
 
 
 # load page
-chrome_path = r"C:\Work\chromedriver.exe"
-driver = webdriver.Chrome(chrome_path)
-driver.maximize_window()
-driver.get("""https://bcsint.is.berkeley.edu""")
-xpath = driver.find_element_by_xpath
+# chrome_path = r"C:\Work\chromedriver.exe"
+# driver = webdriver.Chrome(chrome_path)
+# driver.maximize_window()
+# driver.get("""https://bcsint.is.berkeley.edu""")
+# xpath = driver.find_element_by_xpath
+sis_day_time.login.login_sis(driver, xpath, wait)
 
 
 def main():
@@ -110,7 +105,7 @@ def main():
                 file = csv.reader(csvfile, delimiter='\t')
                 for row in file:
                     excludes.append(row)
-        input("Press enter to begin. ")
+        input("Press enter to begin once on Schedule Class Meetings page. ")
         setup = True
     frame_wait("ptifrmtgtframe")
     course_condition = True
@@ -123,13 +118,18 @@ def main():
                 time.sleep(2)
                 print(xpath(course_section.course).text + "." + xpath(course_section.section).text + " skipped.")
             else:
-                course_section.clear_days()
-                course_section.clear_times()
-                course_section.clear_room()
-                save_record()
-                print(xpath(course_section.course).text + "." + xpath(course_section.section).text + " (" +
-                      xpath(course_section.ccn).text + ")" + " " + xpath(course_section.mtg_end).get_attribute("value"))
-                n += 1
+                try:
+                    driver.find_element_by_xpath("""//*[@id="DERIVED_SR_CMB_SCT_DTL_PB$0"]""")
+                    print(xpath(course_section.course).text + "." + xpath(course_section.section).text +
+                          " skipped: Combined section.")
+                except NoSuchElementException:
+                    course_section.clear_days()
+                    course_section.clear_times()
+                    course_section.clear_room()
+                    save_record()
+                    print(xpath(course_section.course).text + "." + xpath(course_section.section).text + " (" +
+                          xpath(course_section.ccn).text + ")" + " " + xpath(course_section.mtg_end).get_attribute("value"))
+                    n += 1
             try:
                 xpath(course_section.next_section).click()
                 time.sleep(2)

@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import WebDriverException
 
 # load page
 chrome_path = r"C:\Work\chromedriver.exe"
@@ -29,9 +30,16 @@ login.login_cs(driver, xpath, wait)
 with open(r"C:\Work\ind.txt") as csvfile:
     file = csv.reader(csvfile, delimiter='\t')
     for row in file:
-        wait("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""")
-        xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""").clear()
-        xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""").send_keys(term)
+        wait("""//*[@id="Clear"]""")
+        try:
+            wait("""//*[@id="Clear"]""")
+            xpath("""//*[@id="SearchForm"]/div[1]/div[3]/div[3]/span/span/input""").clear()
+            xpath("""//*[@id="SearchForm"]/div[1]/div[3]/div[3]/span/span/input""").send_keys(term)
+        except WebDriverException:
+            time.sleep(5)
+            wait("""//*[@id="Clear"]""")
+            xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""").clear()
+            xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""").send_keys(term)
         time.sleep(1)
         wait("""//*[@id="SearchButton"]""")
         xpath("""//*[@id="AddCourseButton"]""").click()
@@ -41,7 +49,10 @@ with open(r"C:\Work\ind.txt") as csvfile:
         xpath("""//*[@id="SectionText"]  """).send_keys(row[1])
         xpath("""//*[@id="CCNText"]""").send_keys(row[3])
         xpath("""//*[@id="AddCSForm"]/div/div[3]/div[3]/span[1]/span/input[1]""").send_keys(row[4])
-        xpath("""//*[@id="AddCSForm"]/div/div[4]/div[3]/span[1]/span/input""").send_keys(row[5])
+        try:
+            xpath("""//*[@id="AddCSForm"]/div/div[4]/div[3]/span[1]/span/input""").send_keys(row[5])
+        except IndexError:
+            xpath("""//*[@id="AddCSForm"]/div/div[4]/div[3]/span[1]/span/input""").send_keys("Lec")
         xpath("""//*[@id="AddCSForm"]/div/div[1]/div/span[1]/span/input""").send_keys(Keys.ENTER)
         xpath("""//*[@id="SubmitForm"]""").click()
         wait("""/html/body/div[22]/div[2]/div/div/div/div/div[4]/button[2]""")

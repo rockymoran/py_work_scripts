@@ -85,18 +85,24 @@ def main():
     with open(file) as csvfile:
         file = csv.reader(csvfile, delimiter='\t')
         for row in file:
-            ccn = row[0]
-            instructor = EmployeeSearch(frame_count, row[1])
-            sis_search(ccn, term)
-            wait(instructor.search_glass)
-            time.sleep(1)
-            instructor.search_emp()
-            save_record()
-            instructor.role_change()
-            save_record()
-            return_to_results()
+            try:
+                ccn = row[0]
+                instructor = EmployeeSearch(frame_count, row[1])
+                sis_search(ccn, term)
+                wait(instructor.search_glass)
+                time.sleep(1)
+                instructor.search_emp()
+                save_record()
+                instructor.role_change()
+                save_record()
+                return_to_results()
+                print(ccn)
+            except:
+                driver.get("""https://bcsint.is.berkeley.edu/psp/bcsprd/EMPLOYEE/SA/c/ESTABLISH_COURSES.CLASS_DATA_SCTN.GBL""")
+                frame_wait("ptifrmtgtframe")
+                frame_count = 0
+                print(ccn + " problem")
             wait("""//*[@id="#ICClear"]""")
-            print(ccn)
             frame_count += 1
 
 

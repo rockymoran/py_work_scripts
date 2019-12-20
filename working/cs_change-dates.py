@@ -43,15 +43,15 @@ with open(r"C:\Work\dates.txt") as csvfile:
         recordID = row[0]
         startDate = row[1]
         endDate = row[2]
-        wait("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""")
+        wait("""//*[@id="Clear"]""")
         xpath("""//*[@id="Clear"]""")
         try:
-            wait("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""")
+            wait("""//*[@id="Clear"]""")
             xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""").clear()
             xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""").send_keys(term)
         except WebDriverException:
             time.sleep(5)
-            wait("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""")
+            wait("""//*[@id="Clear"]""")
             xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""").clear()
             xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""").send_keys(term)
         time.sleep(1)
@@ -66,11 +66,11 @@ with open(r"C:\Work\dates.txt") as csvfile:
         wait("""//*[@id="SearchButton"]""")
         xpath("""//*[@id="SearchButton"]""").click()
         time.sleep(1)
-        wait("""//*[@id="GridCSList"]/table/tbody/tr/td[2]/a""")
+        wait("""//*[@id="GridCSList"]/table/tbody/tr/td[4]/a""")
         time.sleep(1)
         WebDriverWait(driver, 30).until(EC.invisibility_of_element_located((By.XPATH, """/html/body/div[16]/div[1]""")))
         time.sleep(1)
-        xpath("""//*[@id="GridCSList"]/table/tbody/tr/td[2]/a""").click()
+        xpath("""//*[@id="GridCSList"]/table/tbody/tr/td[4]/a""").click()
         wait("""//*[@id="ClassroomGrid"]/table/tbody/tr/td[1]/a/span""")
         xpath("""//*[@id="ClassroomGrid"]/table/tbody/tr/td[1]/a/span""").click()
         wait("""//*[@id="Begin_Date"]""")

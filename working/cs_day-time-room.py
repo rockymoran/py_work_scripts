@@ -80,18 +80,34 @@ with open(r"C:\Work\rooms.txt") as csvfile:
             noDates = False
         except IndexError:
             noDates = True
-        wait("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""")
+        try:
+            time.sleep(2)
+            wait("""//*[@id="Clear"]""")
+        except:
+            xpath("""/html/body/div[16]/div[2]/div/div/div/div/div[4]/button[2]""").click()
+            print("Conflict or dates outside term")
+            time.sleep(2)
+            try:
+                xpath("""/html/body/div[16]/div[2]/div/div/div/div/div[4]/button[2]""").click()
+                print("Wow, both a conflict AND outside term. Probably MFE or XMBA, amirite?")
+                time.sleep(2)
+                xpath("""/html/body/div[16]/div[2]/div/div/div/div/div[4]/button[2]""").click()
+                time.sleep(2)
+            except:
+                pass
+            driver.get("""https://coursescheduling.haas.berkeley.edu/Search""")
+            wait("""//*[@id="Clear"]""")
         xpath("""//*[@id="Clear"]""")
-        wait("""//*[@id="SearchForm"]/div[1]/div[2]/div[3]/span/span/input""")
-        xpath("""//*[@id="SearchForm"]/div[1]/div[2]/div[3]/span/span/input""").clear()
+        wait("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[3]/div[3]/span/span/input""")
+        xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[3]/div[3]/span/span/input""").clear()
         time.sleep(1)
         try:
-            xpath("""//*[@id="SearchForm"]/div[1]/div[2]/div[3]/span/span/input""").send_keys(term)
+            xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[3]/div[3]/span/span/input""").send_keys(term)
         except:
             time.sleep(3)
             wait("""//*[@id="searchModel_CCN"]""")
-            wait("""//*[@id="SearchForm"]/div[1]/div[2]/div[3]/span/span/input""")
-            xpath("""//*[@id="SearchForm"]/div[1]/div[2]/div[3]/span/span/input""").send_keys(term)
+            wait("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[3]/div[3]/span/span/input""")
+            xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[3]/div[3]/span/span/input""").send_keys(term)
         time.sleep(1)
         wait("""//*[@id="SearchButton"]""")
         if usedID > 1:
@@ -102,13 +118,15 @@ with open(r"C:\Work\rooms.txt") as csvfile:
             xpath("""//*[@id="searchModel_CCN"]""").send_keys(current_course.recordID)
         xpath("""//*[@id="SearchButton"]""").click()
         try:
-            wait("""//*[@id="GridCSList"]/table/tbody/tr/td[2]/a""")
-        except:
+            wait("""//*[@id="GridCSList"]/table/tbody/tr/td[5]/a""")
             time.sleep(1)
-            wait("""//*[@id="GridCSList"]/table/tbody/tr/td[2]/a""")
-        time.sleep(1)
-        wait_invis("""//div[@class='modal-backdrop fade in']""")
-        xpath("""//*[@id="GridCSList"]/table/tbody/tr/td[2]/a""").click()
+            wait_invis("""//div[@class='modal-backdrop fade in']""")
+            xpath("""//*[@id="GridCSList"]/table/tbody/tr/td[5]/a""").click()
+        except:
+            wait("""//*[@id="GridCSList"]/table/tbody/tr/td[4]/a""")
+            time.sleep(1)
+            wait_invis("""//div[@class='modal-backdrop fade in']""")
+            xpath("""//*[@id="GridCSList"]/table/tbody/tr/td[4]/a""").click()
         wait_invis("""//div[@class=’k-loading-mask’]""")
         if editMode > 1:
             wait("""// *[ @ id = "ClassroomGrid"] / div / a / span""")
@@ -142,5 +160,5 @@ with open(r"C:\Work\rooms.txt") as csvfile:
             print(current_course.recordID)
         except:
             time.sleep(3)
-            driver.get("""https://api.haas.berkeley.edu/Search""")
-            print("Potential issue: ", current_course.recordID)
+            driver.get("""https://coursescheduling.haas.berkeley.edu/Search""")
+            print("Manually reloaded page on: ", current_course.recordID)

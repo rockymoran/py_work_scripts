@@ -65,15 +65,15 @@ with open(r"C:\Work\inst_cs.txt") as csvfile:
         recordID = row[0]
         instructor = row[1]
         try:
-            wait("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""")
+            wait("""//*[@id="Clear"]""")
         except WebDriverException:
             driver.get("""https://coursescheduling.haas.berkeley.edu/Search""")
-            wait("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[2]/div[3]/span/span/input""")
+            wait("""//*[@id="Clear"]""")
         xpath("""//*[@id="Clear"]""")
-        wait("""//*[@id="SearchForm"]/div[1]/div[2]/div[3]/span/span/input""")
-        xpath("""//*[@id="SearchForm"]/div[1]/div[2]/div[3]/span/span/input""").clear()
+        wait("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[3]/div[3]/span/span/input""")
+        xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[3]/div[3]/span/span/input""").clear()
         time.sleep(1)
-        xpath("""//*[@id="SearchForm"]/div[1]/div[2]/div[3]/span/span/input""").send_keys(term)
+        xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[3]/div[3]/span/span/input""").send_keys(term)
         time.sleep(1)
         wait("""//*[@id="SearchButton"]""")
         if usedID > 1:
@@ -84,12 +84,16 @@ with open(r"C:\Work\inst_cs.txt") as csvfile:
             xpath("""//*[@id="searchModel_CCN"]""").send_keys(recordID)
         wait("""//*[@id="SearchButton"]""")
         xpath("""//*[@id="SearchButton"]""").click()
-        time.sleep(1)
-        wait("""//*[@id="GridCSList"]/table/tbody/tr/td[2]/a""")
-        time.sleep(1)
-        WebDriverWait(driver, 30).until(EC.invisibility_of_element_located((By.XPATH, """/html/body/div[16]/div[1]""")))
-        time.sleep(1)
-        xpath("""//*[@id="GridCSList"]/table/tbody/tr/td[2]/a""").click()
+        try:
+            wait("""//*[@id="GridCSList"]/table/tbody/tr/td[5]/a""")
+            time.sleep(1)
+            wait_invis("""//div[@class='modal-backdrop fade in']""")
+            xpath("""//*[@id="GridCSList"]/table/tbody/tr/td[5]/a""").click()
+        except:
+            wait("""//*[@id="GridCSList"]/table/tbody/tr/td[4]/a""")
+            time.sleep(1)
+            wait_invis("""//div[@class='modal-backdrop fade in']""")
+            xpath("""//*[@id="GridCSList"]/table/tbody/tr/td[4]/a""").click()
         wait_invis("""//div[@class=’k-loading-mask’]""")
         if editMode > 1:
             wait("""//*[@id="InstructorGrid"]/div[1]/a/span""")

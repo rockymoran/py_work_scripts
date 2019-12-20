@@ -26,7 +26,7 @@ output_room = r'C:\work\course_discrepancies.csv'
 output_inst = r'C:\work\instructor_discrepancies.csv'
 output_print = r'C:\work\print_discrepancies.csv'
 output_rooms_columns = ["CCN", 'Days', 'StartT', 'EndT', 'Room']
-output_inst_columns = ["CCN", "Inst"]
+output_inst_columns = ["CCN", "Instructor"]
 output_print_suppress = ['Print Course', "Schedule Print"]
 
 room_list = {
@@ -80,8 +80,9 @@ days_list = {
 
 
 haas_df = pd.read_excel(haas)
-Rm_split = haas_df['Rm'].str.split(n=0, expand=True)
-Inst_split = haas_df['Inst'].str.split(pat=',', n=1, expand=True)
+haas_df['Schedule'] = haas_df['Schedule'].astype(str)
+Rm_split = haas_df['Schedule'].str.split(n=0, expand=True)
+Inst_split = haas_df['Instructor'].str.split(pat=',', n=1, expand=True)
 time_split = Rm_split[1].str.split('-', n=0, expand=True)
 haas_df['Days'] = Rm_split[0]
 haas_df['StartT'] = time_split[0]
@@ -92,8 +93,10 @@ haas_df['StartT'] = pd.to_datetime(haas_df["StartT"]).dt.strftime("%I:%M%p")
 haas_df['EndT'] = pd.to_datetime(haas_df["EndT"]).dt.strftime("%I:%M%p")
 haas_df['haas_daytime'] = haas_df['Days'] + haas_df['StartT'] + haas_df['EndT'] + haas_df['new_room']
 haas_df['haas_inst_lname'] = Inst_split[0]
+haas_df['CCN'] = haas_df['CCN'].astype(str)
 
 campus_df = pd.read_excel(campus, skiprows=1)
+campus_df['Instructor Name'] = campus_df['Instructor Name'].astype(str)
 Inst_split = campus_df['Instructor Name'].str.split(pat=',', n=1, expand=True)
 campus_df['Class Nbr'] = campus_df['Class Nbr'].astype(str)
 campus_df['new_day'] = campus_df['Meeting Days (MTWRFSU)'].map(days_list)
@@ -111,7 +114,7 @@ combine_room = combine[(combine['haas_daytime'] != combine['campus_daytime']) & 
 combine_room = combine_room[output_rooms_columns].drop_duplicates()
 combine_inst = combine[(combine['haas_inst_lname'] != combine['campus_inst_lname']) & (combine['_merge'] == "both")]
 combine_inst = combine_inst[output_inst_columns].drop_duplicates()
-combine_inst = combine_inst[(combine_inst['Inst'] != 'TBD, Instructor') & (combine_inst['Inst'] != 'TBD, GSI')].dropna()
+combine_inst = combine_inst[(combine_inst['Instructor'] != 'TBD, Instructor') & (combine_inst['Instructor'] != 'TBD, GSI')].dropna()
 combine_print = combine[((combine['Schedule Print'] == "N") & (combine['_merge'] == "both")) |
                         ((combine['Schedule Print'] == "Y") & (combine['_merge'] == "right_only"))]
 combine_print = combine_print[output_print_suppress].drop_duplicates()
