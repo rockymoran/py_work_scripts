@@ -1,33 +1,18 @@
 # enrollment control
 # elements on enrollment control page (xpath)
 import time
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as ec
-from selenium.common.exceptions import NoSuchElementException, TimeoutException, StaleElementReferenceException
+from working import sis_day_time
 
-
-def save_record():
-    xpath("""//*[@id="#ICSave"]""").click()
-    time.sleep(2)
-    WebDriverWait(driver, 50).until(ec.invisibility_of_element_located((By.ID, "SAVED_win0")))
-    return
-
-
-def wait(x):
-    WebDriverWait(driver, 10).until(ec.element_to_be_clickable((By.XPATH, x)))
-    return
-
-
-def frame_wait(x):
-    WebDriverWait(driver, 50).until(ec.frame_to_be_available_and_switch_to_it(x))
-    return
-
-
-def url_wait(x):
-    WebDriverWait(driver, 10).until(ec.url_to_be(x))
-    return
+wait = sis_day_time.wait
+xpath = sis_day_time.xpath
+sis_search = sis_day_time.sis_search
+save_record = sis_day_time.save_record
+return_to_results = sis_day_time.return_to_results
+frame_wait = sis_day_time.frame_wait
+driver = sis_day_time.driver
 
 
 class Meetings:
@@ -42,12 +27,9 @@ class Meetings:
         select = Select(xpath(self.access))
         select.select_by_value('A') # (A)pprove or (G)rade
 
+
 # load page
-chrome_path = r"C:\Work\chromedriver.exe"
-driver = webdriver.Chrome(chrome_path)
-driver.maximize_window()
-driver.get("""https://bcsint.is.berkeley.edu""")
-xpath = driver.find_element_by_xpath
+sis_day_time.login.login_sis(driver, xpath, wait)
 
 
 def main():
