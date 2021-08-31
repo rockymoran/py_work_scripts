@@ -25,7 +25,7 @@ term = input("Semester and year (e.g., Spring 2042): ")
 # login
 login.login_cs(driver, xpath, wait)
 
-# example file format (tabs)
+# example file format (tabs) (ind.txt)
 # PHDBA299A	1	Dal Bo, E	19011	6	ind working title
 with open(r"C:\Work\ind.txt") as csvfile:
     file = csv.reader(csvfile, delimiter='\t')

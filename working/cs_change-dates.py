@@ -36,7 +36,9 @@ while (usedID == 0) or (usedID > 2):
             else:
                 break
 
-
+# file format (dates.txt)
+# id    start       end
+# 47824	7/26/2021	9/20/2021
 with open(r"C:\Work\dates.txt") as csvfile:
     file = csv.reader(csvfile, delimiter='\t')
     for row in file:

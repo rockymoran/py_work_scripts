@@ -20,7 +20,7 @@ root.withdraw()
 
 haas = filedialog.askopenfilename(title='Please select the Haas Course Scheduling "Export to Excel" file.',
                                   filetypes=[('Excel', '.xlsx')])
-campus = filedialog.askopenfilename(title='Please select the SIS "uccs_r_schd_extended" report from campus.',
+campus = filedialog.askopenfilename(title='Please select the SIS "UCCS_R_SCHD_EXTENDED" report from campus.',
                                     filetypes=[('Excel', '.xlsx')])
 output_room = r'C:\work\course_discrepancies.csv'
 output_inst = r'C:\work\instructor_discrepancies.csv'
