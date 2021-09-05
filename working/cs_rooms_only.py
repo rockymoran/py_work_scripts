@@ -24,15 +24,10 @@ def wait_invis(x):
     return
 
 
-class Course:
-    def __init__(self, recordID, room, day, start, end, start_d="", end_d=""):
+class RoomChangeCourse:
+    def __init__(self, recordID, room):
         self.recordID = recordID
-        self.room = room.strip()
-        self.day = day.strip()
-        self.start = start.strip()
-        self.end = end.strip()
-        self.start_d = start_d.strip()
-        self.end_d = end_d.strip()
+        self.room = room
 
 
 # login
@@ -65,22 +60,15 @@ while (editMode == 0) or (editMode > 2):
             else:
                 break
 
-# file format (rooms.txt)
-# CCN/SID   DAY     START   END     ROOM     START_DATE  END_DATE
-# 00001     MW      10:00AM 12:30PM C135     5/19/2035   6/24/2035
-# 00002     TTh     9:30AM  11:00AM N440     5/19/2035   6/24/2035
+# file format (rooms_only.txt)
+# CCN/SID   ROOM
+# 00001     C135
+# 00002     N440
 
-with open(r"C:\Work\rooms.txt") as csvfile:
+with open(r"C:\Work\rooms_only.txt") as csvfile:
     file = csv.reader(csvfile, delimiter='\t')
     for row in file:
-        current_course = Course(row[0], row[4], row[1], row[2], row[3])
-        unscheduled = False
-        try:
-            current_course.start_d = row[5]
-            current_course.end_d = row[6]
-            noDates = False
-        except IndexError:
-            noDates = True
+        current_course = RoomChangeCourse(row[0], row[1])
         try:
             time.sleep(2)
             wait("""//*[@id="Clear"]""")
@@ -141,20 +129,7 @@ with open(r"C:\Work\rooms.txt") as csvfile:
         xpath("""//*[@id="ClassroomGrid"]/table/tbody/tr/td[2]/span[1]/span/input""").send_keys(current_course.room)
         time.sleep(1)
         driver.find_element_by_css_selector("""#ClassroomGrid > table > tbody > tr > td:nth-child(2) > span.k-widget.k-combobox.k-header.k-combobox-clearable > span > input""").send_keys(Keys.DOWN)
-        if not unscheduled:
-            xpath("""//*[@id="ClassroomGrid"]/table/tbody/tr/td[4]/span[1]/span/input""").clear()
-            xpath("""//*[@id="ClassroomGrid"]/table/tbody/tr/td[4]/span[1]/span/input""").send_keys(current_course.day)
-            time.sleep(1)
-            driver.find_element_by_css_selector("""#ClassroomGrid > table > tbody > tr > td:nth-child(4) > span.k-widget.k-combobox.k-header.k-combobox-clearable > span > input""").send_keys(Keys.ENTER)
-            xpath("""//*[@id="Begin_Time"]""").clear()
-            xpath("""//*[@id="Begin_Time"]""").send_keys(current_course.start)
-            xpath("""//*[@id="End_Time"]""").clear()
-            xpath("""//*[@id="End_Time"]""").send_keys(current_course.end)
-        if not noDates:
-            xpath("""//*[@id="Begin_Date"]""").clear()
-            xpath("""//*[@id="Begin_Date"]""").send_keys(current_course.start_d)
-            xpath("""//*[@id="End_Date"]""").clear()
-            xpath("""//*[@id="End_Date"]""").send_keys(current_course.end_d)
+
         xpath("""//*[@id="ClassroomGrid"]/table/tbody/tr/td[1]/a[1]""").click()
         time.sleep(1)
         wait("""//*[@id="Searchbutton"]""")

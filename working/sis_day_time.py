@@ -11,9 +11,13 @@ from datetime import timedelta
 
 # load page
 chrome_path = r"C:\Work\chromedriver.exe"
-driver = webdriver.Chrome(chrome_path)
+chromeOptions = webdriver.ChromeOptions()
+prefs = {"download.default_directory" : "C:\Work\Scripting_Downloads"}
+chromeOptions.add_experimental_option("prefs", prefs)
+driver = webdriver.Chrome(executable_path=chrome_path, chrome_options=chromeOptions)
 xpath = driver.find_element_by_xpath
 loading = """//*[@id="processing"]"""
+link = driver.find_element_by_link_text
 
 
 def wait(x):
@@ -223,9 +227,19 @@ def change_room(x):
 def save_record():
     try:
         xpath("""//*[@id="#ICSave"]""").click()
+        try:
+            time.sleep(2)
+            driver.switch_to.parent_frame()
+            time.sleep(1)
+            while xpath("""//*[@id="#ICOK"]""").is_displayed():
+                xpath("""//*[@id="#ICOK"]""").click()
+                time.sleep(2)
+        except:
+            frame_wait("ptifrmtgtframe")
+            pass
     except:
-        frame_wait("ptifrmtgtframe")
-        xpath("""//*[@id="#ICSave"]""").click()
+            frame_wait("ptifrmtgtframe")
+            xpath("""//*[@id="#ICSave"]""").click()
     time.sleep(2)
     try:
         driver.find_element_by_xpath("""//*[@id="WAIT_win0"]""").is_displayed()
@@ -275,11 +289,12 @@ def main():
                     continue
                 else:
                     break
-
+    driver.get("https://bcsint.is.berkeley.edu/psp/bcsprd/EMPLOYEE/SA/c/ESTABLISH_COURSES.CLASS_DATA_SCTN.GBL")
     with open(r"C:\Work\course_discrepancies.csv") as csvfile:
         frame_wait("ptifrmtgtframe")
+
         file = csv.reader(csvfile, delimiter='\t')
-        # file format
+        # file format (course_discrepancies.csv)
         # CCN   Days    StartT  EndT    Room
         # 01234 MW      12:30PM 2:00PM  C110
         # 01235 TTh     2:00PM  3:30PM  N300

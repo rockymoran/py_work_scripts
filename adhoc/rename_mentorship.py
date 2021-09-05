@@ -1,10 +1,12 @@
+# automatically used by SIS_mentorship.py
+
 import os
 import pandas as pd
 
 path = """C:\Work\Scripting_Downloads\\"""
 
 
-def main():
+def renameFiles():
     for filename in os.listdir(path):
         df = pd.read_excel(path + filename, skiprows=1)
         try:
@@ -17,4 +19,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    renameFiles()

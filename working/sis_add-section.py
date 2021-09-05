@@ -62,26 +62,6 @@ def schedule_print(x):
     return
 
 
-# def save_record():
-#     xpath("""//*[@id="#ICSave"]""").click()
-#     time.sleep(2)
-#     WebDriverWait(driver, 50).until(EC.invisibility_of_element_located((By.ID, "SAVED_win0")))
-#     return
-
-
-# def return_to_results():
-#     xpath("""//*[@id="#ICList"]""").click()
-#     try:
-#         elem = xpath("""//*[@id="#ALERTYES"]""")
-#         if elem.is_displayed():
-#             elem.click()
-#             wait("""//*[@id="#ICSave"]""")
-#             xpath("""//*[@id="#ICSave"]""").click()
-#     except NoSuchElementException:
-#         pass
-#     return
-
-
 # load page
 sis_day_time.login.login_sis(driver, xpath, wait)
 
@@ -119,7 +99,7 @@ with open(r"C:\Work\new-section-sis-data.txt") as csvfile:
         ccn = xpath("""//*[@id="CLASS_TBL_CLASS_NBR$0"]""").text
         return_to_results()
         wait("""//*[@id="#ICClear"]""")
-        print(sid.strip(), ",", ccn.strip())  # Prints results to screen for pasting into CSV and import.
+        print(str(sid).strip(), ",", ccn.strip(), sep='')  # Prints results to screen for pasting into CSV and import.
 print("Complete")
 
 

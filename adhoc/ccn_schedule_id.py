@@ -9,7 +9,7 @@ root.withdraw()
 
 haas = filedialog.askopenfilename(title='Please select the Haas Course Scheduling "Export to Excel" file.',
                                   filetypes=[('Excel', '.xlsx')])
-campus = filedialog.askopenfilename(title='Please select the SIS "uccs_r_schd_extended" report from campus.',
+campus = filedialog.askopenfilename(title='Please select the SIS "UCCS_R_SCHD_EXTENDED" report from campus.',
                                     filetypes=[('Excel', '.xlsx')])
 output = r'C:\work\sched_id_import.csv'
 output_columns = ["Schedule_ID", "Class Nbr"]
