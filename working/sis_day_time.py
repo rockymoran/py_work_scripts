@@ -11,7 +11,10 @@ from datetime import timedelta
 
 # load page
 chrome_path = r"C:\Work\chromedriver.exe"
-driver = webdriver.Chrome(chrome_path)
+chromeOptions = webdriver.ChromeOptions()
+prefs = {"download.default_directory" : "C:\Work\Scripting_Downloads"}
+chromeOptions.add_experimental_option("prefs", prefs)
+driver = webdriver.Chrome(executable_path=chrome_path, chrome_options=chromeOptions)
 xpath = driver.find_element_by_xpath
 loading = """//*[@id="processing"]"""
 link = driver.find_element_by_link_text
