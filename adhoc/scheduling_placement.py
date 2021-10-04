@@ -5,6 +5,7 @@
 
 from csv import reader
 import re
+import pandas as pd
 
 
 # regex to convert normal day time to array of bins (e.g., TTh 11:00AM-12:30PM to [36, 37, 38, 94, 95, 96])
@@ -55,22 +56,28 @@ class Course(object):
         self.capacity = int
         self.need_room = need_room
         self.preassigned_room = ""
+        self.assigned_room = False
         Course.course_instances.append(self)  # adding this to list of Course objects that have been created
 
 
 # iterate through room file and create a room object for each room (consisting of room name and capacity)
-def readRooms(room_file):
+def readRooms(room_file, verbose=False):
     for name, cap in room_file:
         x = Room(name, cap)
-
+        if verbose:
+            print("%s created" % x.name)
 
 # create course records for each preassigned course
-def createPreassigned_Courses(preassignment_file):
+def createPreassigned_Courses(preassignment_file, verbose=False):
     for name, days, times, preassigned_room in preassignment_file:
         x = Course(name, days, times, need_room=False)
         x.preassigned_room = preassigned_room
         day_times = days + " " + times
-        x.bin_times = convertTime(day_times)
+        try:
+            x.bin_times = convertTime(day_times)
+        except AttributeError:
+            if verbose:
+                print("Error parsing %s." % x.name)
 
 
 # remove day/time bin sets from preassigned course rooms
@@ -93,17 +100,21 @@ def preassignRooms(verbose=False):
 
 # iterate through course file and create a course object for each course (consisting of ccn, times (as list of bins),
 # capacity)
-def createCourses(course_file):
+def createCourses(course_file, verbose=False):
     for name, days, times, cap in course_file:
         x = Course(name, days, times, need_room=True)
         x.capacity = cap
         day_times = days + " " + times
-        x.bin_times = convertTime(day_times)
+        try:
+            x.bin_times = convertTime(day_times)
+        except AttributeError:
+            if verbose:
+                print("Error parsing %s." % x.name)
 
 
 # iterate through course list and compare course times to available room times. if room times are available,
 # see if course fits in the room, if so, assign course to room and remove times as "available"
-def scheduleCourses(verbose=False):
+def scheduleCourses(verbose=False, output_file=False):
     assigned = 0
     unassigned = 0
     for course in Course.course_instances:
@@ -116,9 +127,27 @@ def scheduleCourses(verbose=False):
                         if verbose:
                             print("Assigned: %s %s %s %s" % (course.name, course.readable_days, course.readable_times,
                                                              room.name))
+                        course.assigned_room = room.name
                         assigned += 1
                         break
     unassigned = (sum(1 for course in Course.course_instances if course.need_room))
+    results = []
+    columns = ['Schedule_ID', 'Days', 'Times', 'Room']
+    for course in Course.course_instances:
+        if course.assigned_room:
+            results.append(
+                {
+                    'Schedule_ID': course.name,
+                    'Days': course.readable_days,
+                    'Times': course.readable_times,
+                    'Room': course.assigned_room
+                }
+            )
+    df = pd.DataFrame(results)
+    if output_file:
+        df[columns].to_excel(output_file)
+    else:
+        print(df[columns])
     print("Process complete. %s courses processsed. %s courses assigned. %s remain unassigned." % (unassigned,
                                                                                                    assigned,
                                                                                                    unassigned-assigned))
@@ -161,8 +190,8 @@ if __name__ == "__main__":
     course_file = reader(open(course_input_file), delimiter='\t')
     preassignment_file = reader(open(preassigned_input_file), delimiter='\t')
 
-    readRooms(room_file)
-    createPreassigned_Courses(preassignment_file)
+    readRooms(room_file, verbose=True)
+    createPreassigned_Courses(preassignment_file, verbose=True)
     preassignRooms(verbose=True)
-    createCourses(course_file)
+    createCourses(course_file, verbose=True)
     scheduleCourses(verbose=True)

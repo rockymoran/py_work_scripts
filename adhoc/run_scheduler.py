@@ -19,6 +19,8 @@ course_input_file = r"C:\Work\course.csv"
 # N300	MW	12:30PM-02:00PM
 preassigned_input_file = r"C:\Work\filled_rooms.csv"
 
+output_file = r"C:\Work\scheduled_rooms.xlsx"
+
 
 room_file = reader(open(room_input_file), delimiter='\t')
 course_file = reader(open(course_input_file), delimiter='\t')
@@ -28,4 +30,4 @@ scheduling_placement.readRooms(room_file)
 scheduling_placement.createPreassigned_Courses(preassignment_file)
 scheduling_placement.preassignRooms()
 scheduling_placement.createCourses(course_file)
-scheduling_placement.scheduleCourses()
+scheduling_placement.scheduleCourses(output_file=output_file)

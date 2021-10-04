@@ -133,6 +133,8 @@ def change_max(x=1):
 
 def find_max(x):
     room_list = {
+        "No": 31,
+        "Online": 31,
         "C110": 47,
         "C125": 62,
         "C132": 12,
@@ -172,6 +174,8 @@ def find_max(x):
 
 def change_room(x):
     room_list = {
+        "No": "",
+        "Online": "",
         "C110": "CHEIC110",
         "C125": "CHEIC125",
         "C132": "CHEIC132",
