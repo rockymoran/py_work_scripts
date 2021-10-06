@@ -22,66 +22,101 @@ WebDriverWait = sis_day_time.WebDriverWait
 today = date.today()
 date = today.strftime("%b-%d-%Y")
 
+# thing to wait for on inst page (indicating we are in the results)
+add_inst = """//*[@id="CLASS_INSTR$new$0$$0"]"""
 
-class EmployeeSearch:
-    # open instructor search window
-    search_glass = """//*[@id="CLASS_INSTR_EMPLID$prompt$img$0"]"""
+
+def search_emp(instructor, list_pos):
+    add_inst = """//*[@id="CLASS_INSTR$new$0$$0"]"""
+    id_box_pre = """//*[@id="CLASS_INSTR_EMPLID$"""
+    id_box_suf = """"]"""
+    search_glass_pre = """//*[@id="CLASS_INSTR_EMPLID$prompt$img$"""
+    search_glass_suf = """"]"""
+    search_glass = search_glass_pre + str(0) + search_glass_suf
     search_lname = """//*[@id="UC_INSTR_VW2_LAST_NAME_SRCH"]"""
     search_fname = """//*[@id="UC_INSTR_VW2_FIRST_NAME_SRCH"]"""
     search_click = """//*[@id="#ICSearch"]"""
     first_result = """//*[@id="SEARCH_RESULT1"]"""
     search_cancel = """//*[@id="#ICCancel"]"""
-    instructor_role_drop = """//*[@id="CLASS_INSTR_INSTR_ROLE$0"]"""
-    proxy = "APRX"
-    gsi = "TNIC"
-    pri = "PI"
-    access_drop = """//*[@id="CLASS_INSTR_GRADE_RSTR_ACCESS$0"]"""
-    approve = "A"
-    grade = "G"
 
-    def __init__(self, frame_count, full_name, role=1):
-        self.frame_count = frame_count
-        self.last_name, self.first_name = full_name.split(",")
-        self.search_last_name = ''.join(e for e in self.last_name if e.isalnum()).upper()
-        self.search_first_name = ''.join(e for e in self.first_name if e.isalnum()).upper()
-        self.role = role
+    last_name, first_name = instructor.split(",")
+    search_last_name = ''.join(e for e in last_name if e.isalnum()).upper()
+    search_first_name = ''.join(e for e in first_name if e.isalnum()).upper()
 
-    def search_emp(self):
-        xpath(EmployeeSearch.search_glass).click()
+    position_entered = 0
+    # if this isn't the first instructor for the course, click "add inst" button.
+    # then find an empty instructor box and check its id
+    # use that box's id ("position_entered") as the one you're entering data into--prevent from overwriting
+    # instructors
+    if list_pos > 0:
+        xpath(add_inst).click()
         time.sleep(2)
-        WebDriverWait(driver, 120).until(ec.invisibility_of_element_located((By.XPATH, """//*[@id="processing"]""")))
-        driver.switch_to.parent_frame()
-        for check in range(99):
+        for i in range(list_pos + 1):
             try:
-                driver.switch_to.frame("ptModFrame_" + str(check))
-                break
-            except NoSuchFrameException:
+                xpath("""//*[@id="CLASS_INSTR$hviewall$0"]""").click()
+                time.sleep(1)
+            except:
                 pass
-            except Exception:
-                traceback.print_exc()
-        wait(EmployeeSearch.search_lname)
-        xpath(EmployeeSearch.search_lname).send_keys(self.search_last_name)
-        xpath(EmployeeSearch.search_fname).send_keys(self.search_first_name)
-        time.sleep(1)
-        xpath(EmployeeSearch.search_click).click()
-        WebDriverWait(driver, 120).until(ec.invisibility_of_element_located((By.XPATH, """//*[@id="processing"]""")))
+            search_box = id_box_pre + str(i) + id_box_suf
+            inst_value = xpath(search_box).get_attribute("Value")
+            inst_value = inst_value[:]
+            if inst_value is "":
+                position_entered = i
+                search_glass = search_glass_pre + str(position_entered) + search_glass_suf
+                break
+    xpath(search_glass).click()
+    time.sleep(2)
+    WebDriverWait(driver, 120).until(ec.invisibility_of_element_located((By.XPATH, """//*[@id="processing"]""")))
+    driver.switch_to.parent_frame()
+    for check in range(99):
         try:
-            wait(EmployeeSearch.first_result)
-            time.sleep(1)
-            xpath(EmployeeSearch.first_result).click()
-        except:
-            wait(EmployeeSearch.search_cancel)
-            time.sleep(1)
-            xpath(EmployeeSearch.search_cancel).click()
-            print("Not found.")
-        frame_wait("ptifrmtgtframe")
+            driver.switch_to.frame("ptModFrame_" + str(check))
+            break
+        except NoSuchFrameException:
+            pass
+        except Exception:
+            traceback.print_exc()
+    wait(search_lname)
+    xpath(search_lname).send_keys(search_last_name)
+    xpath(search_fname).send_keys(search_first_name)
+    time.sleep(1)
+    xpath(search_click).click()
+    WebDriverWait(driver, 120).until(ec.invisibility_of_element_located((By.XPATH, """//*[@id="processing"]""")))
+    try:
+        wait(first_result)
+        time.sleep(1)
+        xpath(first_result).click()
+        success = True
+    except:
+        wait(search_cancel)
+        time.sleep(1)
+        xpath(search_cancel).click()
+        success = False
+    frame_wait("ptifrmtgtframe")
+    return position_entered, success
 
-    def role_change(self):
-        # this is not working yet; manually change instructor role below from options defined above
-        select = Select(xpath(EmployeeSearch.instructor_role_drop))
-        select.select_by_value(EmployeeSearch.pri)
-        select = Select(xpath(EmployeeSearch.access_drop))
-        select.select_by_value(EmployeeSearch.approve)
+
+def role_change(which_box, role="PI"):
+    # this is not working yet; manually change instructor role below from options defined below
+    approval = {
+        "PI": "A",
+        "TNIC": "G",
+        "APRX": "G",
+        }
+
+    access_drop_pre = """//*[@id="CLASS_INSTR_GRADE_RSTR_ACCESS$"""
+    access_drop_suf = """"]"""
+
+    instructor_role_drop_pre = """//*[@id="CLASS_INSTR_INSTR_ROLE$"""
+    instructor_role_drop_suf = """"]"""
+
+    access_drop = access_drop_pre + str(which_box) + access_drop_suf
+    instructor_role_drop = instructor_role_drop_pre + str(which_box) + instructor_role_drop_suf
+
+    select = Select(xpath(instructor_role_drop))
+    select.select_by_value(role)
+    select = Select(xpath(access_drop))
+    select.select_by_value(approval[role])
 
 
 # file format (instructor_discrepancies.csv)
@@ -96,40 +131,43 @@ def main():
     term = input("Which term? (e.g. 2278): ")
     driver.get("""https://bcsint.is.berkeley.edu/psp/bcsprd/EMPLOYEE/SA/c/ESTABLISH_COURSES.CLASS_DATA_SCTN.GBL""")
     frame_wait("ptifrmtgtframe")
-    frame_count = 0
     with open(file) as csvfile:
         file = csv.reader(csvfile, delimiter='\t')
         for row in file:
             problem = 0  # using this to see when the thing is failing (so if it prints "CCN problem 3" then we know it
             # failed after changing instructor role
-            try:
-                ccn = row[0]
-                instructor = EmployeeSearch(frame_count, row[1])
-                sis_search(ccn, term)
-                wait(instructor.search_glass)
-                time.sleep(1)
-                instructor.search_emp()
-                problem += 1  # 1
-                save_record()
-                problem += 1  # 2
-                instructor.role_change()
-                problem += 1  # 3
-                save_record()
-                problem += 1  # 4
-                driver.save_screenshot(r"C:\Work\selenium_screenshots\\" + ccn + "-" + term + "-" + date + ".png")
-                problem += 1  # 5
-                return_to_results()
-                problem += 1  # 6
-                print(ccn)
-            except Exception:
-                # traceback.print_exc()
-                driver.get(
-                    """https://bcsint.is.berkeley.edu/psp/bcsprd/EMPLOYEE/SA/c/ESTABLISH_COURSES.CLASS_DATA_SCTN.GBL""")
-                frame_wait("ptifrmtgtframe")
-                frame_count = 0
-                print(ccn + " problem " + str(problem))
-            wait("""//*[@id="#ICClear"]""")
-            frame_count += 1
+            ccn = row[0]
+            faculty_list = row[1].split(";")
+            for i, faculty in enumerate(faculty_list):
+                faculty = faculty.strip()
+                try:
+                    sis_search(ccn, term)
+                    wait(add_inst)
+                    time.sleep(1)
+                    entered, success = search_emp(faculty, i)
+                    problem += 1  # 1
+                    save_record()
+                    problem += 1  # 2
+                    if success:
+                        role_change(entered)
+                        problem += 1  # 3
+                        save_record()
+                        problem += 1  # 4
+                        driver.save_screenshot(r"C:\Work\selenium_screenshots\\" + ccn + "-" + term + "-" + date + ".png")
+                        problem += 1  # 5
+                    return_to_results()
+                    problem += 1  # 6
+                    if success:
+                        print("%s - %s success" % (ccn, faculty))
+                    else:
+                        print("%s - %s failed" % (ccn, faculty))
+                except Exception as e:
+                    print(e)
+                    driver.get(
+                        """https://bcsint.is.berkeley.edu/psp/bcsprd/EMPLOYEE/SA/c/ESTABLISH_COURSES.CLASS_DATA_SCTN.GBL""")
+                    frame_wait("ptifrmtgtframe")
+                    print(ccn + " problem " + str(problem))
+                wait("""//*[@id="#ICClear"]""")
     driver.close()
 
 
