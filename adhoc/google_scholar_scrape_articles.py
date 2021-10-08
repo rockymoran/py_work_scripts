@@ -1,3 +1,5 @@
+import time
+
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
@@ -10,6 +12,7 @@ SCHOLAR_BASE_URL = "https://scholar.google.com/"
 
 df = pd.read_excel(INPUT_URL_FILE)
 
+result_df = pd.DataFrame()
 
 def find_articles(fname, surl):
     header = {'User-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -38,10 +41,15 @@ def find_articles(fname, surl):
                 return_dict['Scholar Paper Link'] = paper_url
                 return_dict['Year'] = year
                 print(return_dict)
-                # result_df = result_df.append(return_dict, ignore_index=True)
+                result_df = result_df.append(return_dict, ignore_index=True)
+                time.sleep(2)
         except ValueError:
             pass
+        time.sleep(2)
 
 
 result = [find_articles(x, y) for x, y in zip(df['Name'], df['Google Scholar'])]
 
+result_df.to_excel(OUTPUT_FILE)
+
+print(result)
