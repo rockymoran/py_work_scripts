@@ -1,53 +1,78 @@
-# uses haas faculty website to find each faculty's name, group, google scholar page
-
+import time
 import pandas as pd
 import requests
-import re
 from bs4 import BeautifulSoup
+from selenium import webdriver
 
-# this file should have the urls of each faculty member's Haas website
-INPUT_FACULTY_FILE = r"C:\Work\haas_faculty_urls.txt"
-OUTPUT_FILE = r"C:\Work\scholar_links.xlsx"
-
-# url addition for google scholar to get all results and sorted by date
-SCHOLAR_URL_APPEND = r"&pagesize=100&view_op=list_works&sortby=pubdate"
-
-df = pd.read_csv(INPUT_FACULTY_FILE, header=None, names=["url"])
+# load page
+chrome_path = r"C:\Work\chromedriver.exe"
+driver = webdriver.Chrome(chrome_path)
 
 
-# for any given haas faculty url, goes to the site then looks for their name, their title (which has their group in
-# it), and google scholar url.
-def get_faculty_info(url):
-    header = {'User-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                            'Chrome/64.0.3282.186 Safari/537.36'}
-    page = requests.get(url, headers=header)
+# this file should have the urls of each faculty member's google scholar page
+INPUT_URL_FILE = r"C:\Work\scholar_links.xlsx"
+OUTPUT_FILE = r"C:\Work\scholar_articles.xlsx"
+SCHOLAR_BASE_URL = r"https://scholar.google.com/"
+
+def captcha(s, page):
+    cookies = s.cookies.get_dict()
+    for cookie in cookies:
+        driver.add_cookie(cookie)
+    captcha_url = page.url
+    driver.get(captcha_url)
+    input("Press enter once you've done the stupid fucking captcha...")
+    cookies = driver.get_cookies()
+    for cookie in cookies:
+        s.cookies.set(cookie['name'], cookie['value'])
+    return s
+
+
+def find_articles(fname, surl, results, s):
+    header = {'User-agent': 'haas-scholar results bot'}
+    page = s.get(surl, headers=header)
+    if page.status_code == 429:
+        s = captcha(s, page)
+        page = s.get(surl, headers=header)
+
     soup = BeautifulSoup(page.content, 'html.parser')
-    try:
-        name = soup.find("h1", itemprop="name headline").text
-    except AttributeError:
-        name = ""
-    try:
-        title = soup.find("p", {"class": "intro-text"}).get_text(separator="\n")
-    except AttributeError:
-        title = ""
-    # grab all of the links on the page, then find the first one that is a google scholar link. don't know of a
-    # better way to do this, sadly. if it gets through all of them and none are found, sets scholar_link to blank.
-    try:
-        for link in soup.find_all('a'):
-            if re.search(r"https:\/\/scholar.google.com\/citations", link['href']):
-                scholar_link = link['href'] + SCHOLAR_URL_APPEND
-                break
-            scholar_link = ""
-    except AttributeError:
-        scholar_link = ""
+    rows = soup.findAll("tr", class_="gsc_a_tr")
+    for row in rows:
+        year = row.find("td", class_="gsc_a_y").text
+        try:
+            if int(year) > 2016:
+                paper = row.find("a", class_="gsc_a_at").text
+                paper_url = row.find("a", {'class': "gsc_a_at", 'href': True})['href']
+                page = s.get(SCHOLAR_BASE_URL + paper_url, headers=header)
+                if page.status_code == 429:
+                    s = captcha(s, page)
+                    page = s.get(SCHOLAR_BASE_URL + paper_url, headers=header)
+                soup = BeautifulSoup(page.content, 'html.parser')
+                table = soup.find("div", id='gsc_oci_table')
+                divs = table.findAll("div", class_='gs_scl')
+                return_dict = {}
+                for div in divs:
+                    label = div.find("div", class_="gsc_oci_field").text
+                    value = div.find("div", class_="gsc_oci_value").text
+                    return_dict[label] = value
+                return_dict['Name'] = fname
+                return_dict['Scholar Page'] = surl
+                return_dict['Title'] = paper
+                return_dict['Scholar Paper Link'] = paper_url
+                return_dict['Year'] = year
+                print(return_dict)
+                results = results.append(return_dict, ignore_index=True)
+                time.sleep(5)
+        except ValueError:
+            pass
+        time.sleep(2)
+    return results
 
-    print("%s processed." % name)
-    return name, title, scholar_link
 
-
-# applies the get_faculty_info function to each row of the data file, then creates a new column result for name,
-# title, scholar as they are found. (result_type ="expand" is key! "list-like results will be turned into columns")
-df[["Name", "Title and Group", "Google Scholar"]] = df.apply(lambda x: get_faculty_info(x["url"]), axis=1,
-                                                             result_type="expand")
-
+url_df = pd.read_excel(INPUT_URL_FILE)
+urls = url_df.values.tolist()
+df = pd.DataFrame()
+with requests.Session() as s:
+    for url in urls:
+        df = find_articles(url[0], url[1], df, s)
 df.to_excel(OUTPUT_FILE)
+print(df)
