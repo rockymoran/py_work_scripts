@@ -10,6 +10,8 @@ import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
+
+
 # load page
 chrome_path = r"C:\Work\chromedriver.exe"
 driver = webdriver.Chrome(chrome_path)
