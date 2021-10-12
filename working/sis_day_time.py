@@ -268,6 +268,7 @@ def return_to_results():
 
 def main():
     login.login_sis(driver, xpath, wait)
+    login.login_sis(driver, xpath, wait)
     # set semester and whether course max enrollment changes
     term = input("Term (e.g., 2985): ")
     maxes = 0

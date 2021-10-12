@@ -99,9 +99,9 @@ def search_emp(instructor, list_pos):
 def role_change(which_box, role="PI"):
     # this is not working yet; manually change instructor role below from options defined below
     approval = {
-        "PI": "A",
-        "TNIC": "G",
-        "APRX": "G",
+        "PI": "A",  # primary instructor, approve grades
+        "TNIC": "G",  # gsi/reader, enter grades
+        "APRX": "A",  # admin proxy, enter grades
         }
 
     access_drop_pre = """//*[@id="CLASS_INSTR_GRADE_RSTR_ACCESS$"""
@@ -138,6 +138,12 @@ def main():
             # failed after changing instructor role
             ccn = row[0]
             faculty_list = row[1].split(";")
+            try:  # if role is in file, use it
+                role = row[2].upper()
+                if role is '':
+                    role = "PI"
+            except IndexError:  # otherwise default to primary instructor
+                role = "PI"
             for i, faculty in enumerate(faculty_list):
                 faculty = faculty.strip()
                 try:
@@ -149,7 +155,7 @@ def main():
                     save_record()
                     problem += 1  # 2
                     if success:
-                        role_change(entered)
+                        role_change(entered, role)
                         problem += 1  # 3
                         save_record()
                         problem += 1  # 4
