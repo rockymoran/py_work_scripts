@@ -3,7 +3,6 @@
 # sleeps five seconds before each faculty
 # sleeps five seconds after each article.
 # takes a long time to run, but this avoids being flagged as a bot.
-# f
 
 
 import time
@@ -11,7 +10,6 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
-
 
 
 # load page
@@ -55,8 +53,12 @@ def find_articles(fname, surl, results, s):
     for row in rows:
         year = row.find("td", class_="gsc_a_y").text
         try:
-            if int(year) == 2016:
+            if int(year) >= 2016:
                 paper = row.find("a", class_="gsc_a_at").text
+                try:
+                    cited = row.find("a", class_="gsc_a_ac gs_ibl").text
+                except AttributeError:
+                    cited = ''
                 paper_url = row.find("a", {'class': "gsc_a_at", 'href': True})['href']
                 page = s.get(SCHOLAR_BASE_URL + paper_url, headers=header)
                 if page.status_code == 429:
@@ -73,6 +75,7 @@ def find_articles(fname, surl, results, s):
                 return_dict['Name'] = fname
                 return_dict['Scholar Page'] = surl
                 return_dict['Title'] = paper
+                return_dict['Citations (initial)'] = cited
                 return_dict['Scholar Paper Link'] = paper_url
                 return_dict['Year'] = year
                 print(return_dict)
@@ -90,7 +93,21 @@ with requests.Session() as s:
     for url in urls:
         df = pd.read_excel(TEMP_OUTPUT)
         df = find_articles(url[0], url[1], df, s)
-        df.to_excel(TEMP_OUTPUT, index=False)
+        while True:
+            try:
+                df.to_excel(TEMP_OUTPUT, index=False)
+                break
+            except PermissionError:
+                input(f"{TEMP_OUTPUT} open. Close it and press enter to continue.")
+                pass
 
-df.to_excel(OUTPUT_FILE, index=False)
+
+while True:
+    try:
+        df.to_excel(OUTPUT_FILE, index=False)
+        break
+    except PermissionError:
+        input(f"{OUTPUT_FILE} open. Close it and press enter to continue.")
+        pass
+
 print(df)
