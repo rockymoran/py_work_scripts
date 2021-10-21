@@ -1,4 +1,4 @@
-# make sure to change the year (right now running == 2016)
+# make sure to change the year (right now running >= 2016)
 # make sure to backup old file if you still want old data!!
 # sleeps five seconds before each faculty
 # sleeps five seconds after each article.
@@ -6,7 +6,6 @@
 
 
 import time
-
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
@@ -15,7 +14,6 @@ from selenium import webdriver
 
 # load page
 chrome_path = r"C:\Work\chromedriver.exe"
-driver = webdriver.Chrome(chrome_path)
 
 
 # this file should have the urls of each faculty member's google scholar page
@@ -24,11 +22,10 @@ OUTPUT_FILE = r"C:\Work\scholar_articles.xlsx"
 SCHOLAR_BASE_URL = r"https://scholar.google.com/"
 TEMP_OUTPUT = r"C:\Work\scholar_articles_temp.xlsx"
 
-SCHOLAR_BASE_URL = "https://scholar.google.com/"
 
-url_df = pd.read_excel(INPUT_URL_FILE)
 def captcha(s, page):
     cookies = s.cookies.get_dict()
+    driver = webdriver.Chrome(chrome_path)
     for cookie in cookies:
         driver.add_cookie(cookie)
     captcha_url = page.url
@@ -41,10 +38,6 @@ def captcha(s, page):
     return s
 
 
-def find_articles(fname, surl, results):
-    header = {'User-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                            'Chrome/64.0.3282.186 Safari/537.36'}
-    page = requests.get(surl, headers=header)
 def find_articles(fname, surl, results, s):
     time.sleep(5)
     header = {'User-agent': 'haas-scholar results bot'}
@@ -60,10 +53,17 @@ def find_articles(fname, surl, results, s):
     for row in rows:
         year = row.find("td", class_="gsc_a_y").text
         try:
-            if int(year) > 2016:
+            if int(year) >= 2016:
                 paper = row.find("a", class_="gsc_a_at").text
+                try:
+                    cited = row.find("a", class_="gsc_a_ac gs_ibl").text
+                except AttributeError:
+                    cited = ''
                 paper_url = row.find("a", {'class': "gsc_a_at", 'href': True})['href']
-                page = requests.get(SCHOLAR_BASE_URL + paper_url, headers=header)
+                page = s.get(SCHOLAR_BASE_URL + paper_url, headers=header)
+                if page.status_code == 429:
+                    s = captcha(s, page)
+                    page = s.get(SCHOLAR_BASE_URL + paper_url, headers=header)
                 soup = BeautifulSoup(page.content, 'html.parser')
                 table = soup.find("div", id='gsc_oci_table')
                 divs = table.findAll("div", class_='gs_scl')
@@ -75,24 +75,39 @@ def find_articles(fname, surl, results, s):
                 return_dict['Name'] = fname
                 return_dict['Scholar Page'] = surl
                 return_dict['Title'] = paper
+                return_dict['Citations (initial)'] = cited
                 return_dict['Scholar Paper Link'] = paper_url
                 return_dict['Year'] = year
                 print(return_dict)
                 results = results.append(return_dict, ignore_index=True)
-                time.sleep(2)
+                time.sleep(5)
         except ValueError:
             pass
-        time.sleep(2)
     return results
 
 
+url_df = pd.read_excel(INPUT_URL_FILE)
 urls = url_df.values.tolist()
+df = pd.DataFrame()
+with requests.Session() as s:
+    for url in urls:
+        df = pd.read_excel(TEMP_OUTPUT)
+        df = find_articles(url[0], url[1], df, s)
+        while True:
+            try:
+                df.to_excel(TEMP_OUTPUT, index=False)
+                break
+            except PermissionError:
+                input(f"{TEMP_OUTPUT} open. Close it and press enter to continue.")
+                pass
 
-df = pd.DataFrame
 
-for url in urls:
-    df = find_articles(url[0], url[1], df)
-
-df.to_excel(OUTPUT_FILE)
+while True:
+    try:
+        df.to_excel(OUTPUT_FILE, index=False)
+        break
+    except PermissionError:
+        input(f"{OUTPUT_FILE} open. Close it and press enter to continue.")
+        pass
 
 print(df)
