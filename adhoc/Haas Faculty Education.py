@@ -8,7 +8,7 @@ import csv
 
 # this file should have the urls of each faculty member's Haas website
 INPUT_FACULTY_FILE = r"C:\Work\haas_faculty_urls.txt"
-OUTPUT_FILE = r"C:\Work\fac_education.xlsx"
+OUTPUT_FILE = r"C:\Work\fac_education_rev.xlsx"
 
 columns = ['Berkeley_ID', 'Employee_Name', 'Institution', 'Location', 'Major', 'Degree']
 
@@ -29,9 +29,15 @@ def get_faculty_education(url, df):
     try:
         div_contents = soup.find('h2', text='Education').findParent()
         lis = div_contents.findAll("li")
-        for li in lis:
-            new_row = {'Employee_Name': name, "Education": li.text, "URL": url}
-            df = df.append(new_row, ignore_index=True)
+        p_text = div_contents.findAll("p")
+        if lis:
+            for li in lis:
+                new_row = {'Employee_Name': name, "Education": li.text, "URL": url}
+                df = df.append(new_row, ignore_index=True)
+        else:
+            for p in p_text:
+                new_row = {'Employee_Name': name, "Education": p.text, "URL": url}
+                df = df.append(new_row, ignore_index=True)
     except AttributeError:
         pass
 

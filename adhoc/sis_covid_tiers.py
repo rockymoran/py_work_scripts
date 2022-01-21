@@ -39,15 +39,10 @@ def url_wait(x):
 
 def maintain_soc_search(w, x, y, z="UCB01"):
     xpath("""//*[@id="#ICClear"]""").click()
-    time.sleep(1.5)
     xpath("""//*[@id="CLASS_TBL_SCTY_INSTITUTION"]""").send_keys(z)
-    time.sleep(1.5)
     xpath("""//*[@id="CLASS_TBL_SCTY_STRM"]""").send_keys(y)
-    time.sleep(1.5)
     xpath("""//*[@id="CLASS_TBL_SCTY_SUBJECT"]""").send_keys(w)
-    time.sleep(1.5)
     xpath("""//*[@id="CLASS_TBL_SCTY_CATALOG_NBR"]""").send_keys(x)
-    time.sleep(1.5)
     xpath("""//*[@id="#ICSearch"]""").click()
     return
 
@@ -66,34 +61,36 @@ def add_tier(x):
     xpath("""//*[@id="CLASS_ATTRIBUTE_CRSE_ATTR_VALUE$1"]""").send_keys("T2 FLEX")
     return
 
+def main():
+    # load page
+    sis_day_time.login.login_sis(driver, xpath, wait)
 
-# load page
-sis_day_time.login.login_sis(driver, xpath, wait)
-
-# set semester, schedule print, ccn variable
-term = input("Term (e.g., 2985): ")
-
-
-with open(r"C:\Work\covid_tiers.txt") as csvfile:
-    frame_wait("ptifrmtgtframe")
-    file = csv.reader(csvfile, delimiter='\t')
-    for row in file:
-        subject = row[0]
-        course_number = row[1]
-        ccn = row[2]
-        maintain_soc_search(subject, course_number, term)
-        time.sleep(1)
-        try:  # test whether search goes directly to results, or first record must be clicked
-            wait("""//*[@id="CLASS_TBL_SESSION_CODE$0"]""")
-        except TimeoutException:
-            xpath("""//*[@id="SEARCH_RESULT1"]""").click()
-            wait("""//*[@id="CLASS_TBL_SESSION_CODE$0"]""")
-        add_tier(ccn)
-        save_record()
-        ccn = xpath("""//*[@id="CLASS_TBL_CLASS_NBR$0"]""").text
-        return_to_results()
-        wait("""//*[@id="#ICClear"]""")
-        print(ccn.strip())  # Prints completed CCN to screen
-print("Complete")
+    # set semester, schedule print, ccn variable
+    term = input("Term (e.g., 2985): ")
 
 
+    with open(r"C:\Work\covid_tiers.txt") as csvfile:
+        frame_wait("ptifrmtgtframe")
+        file = csv.reader(csvfile, delimiter='\t')
+        for row in file:
+            subject = row[0]
+            course_number = row[1]
+            ccn = row[2]
+            maintain_soc_search(subject, course_number, term)
+            time.sleep(1)
+            try:  # test whether search goes directly to results, or first record must be clicked
+                wait("""//*[@id="CLASS_TBL_SESSION_CODE$0"]""")
+            except TimeoutException:
+                xpath("""//*[@id="SEARCH_RESULT1"]""").click()
+                wait("""//*[@id="CLASS_TBL_SESSION_CODE$0"]""")
+            add_tier(ccn)
+            save_record()
+            ccn = xpath("""//*[@id="CLASS_TBL_CLASS_NBR$0"]""").text
+            return_to_results()
+            wait("""//*[@id="#ICClear"]""")
+            print(ccn.strip())  # Prints completed CCN to screen
+    print("Complete")
+
+
+if __name__ == '__main__':
+    main()

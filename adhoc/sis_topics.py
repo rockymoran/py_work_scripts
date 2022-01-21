@@ -40,16 +40,15 @@ def url_wait(x):
 
 
 def maintain_soc_search(w, x, y, z="UCB01"):
+    # w = subject, x = course_number, y = term
+    time.sleep(1)
     xpath("""//*[@id="#ICClear"]""").click()
-    time.sleep(1.5)
+    time.sleep(1)
     xpath("""//*[@id="CLASS_TBL_SCTY_INSTITUTION"]""").send_keys(z)
-    time.sleep(1.5)
     xpath("""//*[@id="CLASS_TBL_SCTY_STRM"]""").send_keys(y)
-    time.sleep(1.5)
     xpath("""//*[@id="CLASS_TBL_SCTY_SUBJECT"]""").send_keys(w)
-    time.sleep(1.5)
     xpath("""//*[@id="CLASS_TBL_SCTY_CATALOG_NBR"]""").send_keys(x)
-    time.sleep(1.5)
+    time.sleep(1)
     xpath("""//*[@id="#ICSearch"]""").click()
     return
 
@@ -94,7 +93,7 @@ def add_topic(ccn, t_id):
 def main():
     # load page
     sis_day_time.login.login_sis(driver, xpath, wait)
-    input("Press enter to start")
+    input("Go to Maintain Schedule of Classes search screen and press enter to start")
     with open(r"C:\Work\topics_sis.txt") as csvfile:
         file = csv.reader(csvfile, delimiter='\t')
         for row in file:

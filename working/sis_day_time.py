@@ -12,7 +12,7 @@ from datetime import timedelta
 # load page
 chrome_path = r"C:\Work\chromedriver.exe"
 chromeOptions = webdriver.ChromeOptions()
-prefs = {"download.default_directory" : "C:\Work\Scripting_Downloads"}
+prefs = {"download.default_directory": "C:\Work\Scripting_Downloads"}
 chromeOptions.add_experimental_option("prefs", prefs)
 driver = webdriver.Chrome(executable_path=chrome_path, chrome_options=chromeOptions)
 xpath = driver.find_element_by_xpath
@@ -169,7 +169,7 @@ def find_max(x):
         "I-Lab 124": 70,
         "S300T": 60
     }
-    return room_list.get(x, "none")
+    return room_list.get(x.upper(), "none")
 
 
 def change_room(x):
@@ -212,7 +212,7 @@ def change_room(x):
         "S300T": "HAASS300T"
     }
     xpath("""//*[@id="CLASS_MTG_PAT_FACILITY_ID$0"]""").clear()
-    xpath("""//*[@id="CLASS_MTG_PAT_FACILITY_ID$0"]""").send_keys(room_list.get(x, "none"))
+    xpath("""//*[@id="CLASS_MTG_PAT_FACILITY_ID$0"]""").send_keys(room_list.get(x.upper(), "none"))
     save_record()
     time.sleep(1.5)
     try:
@@ -307,9 +307,9 @@ def main():
             CCN = row[0]
             start = row[2]
             end = row[3]
-            days = row[1]
+            days = row[1].upper()
             try:
-                room = row[4]
+                room = row[4].upper()
                 if len(room) > 0:
                     if global_skip == 1:
                         skip_room = False

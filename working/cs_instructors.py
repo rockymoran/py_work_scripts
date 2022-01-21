@@ -1,5 +1,8 @@
 import csv
 import time
+
+import selenium.common.exceptions
+
 import login
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -73,7 +76,12 @@ with open(r"C:\Work\inst_cs.txt") as csvfile:
         wait("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[3]/div[3]/span/span/input""")
         xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[3]/div[3]/span/span/input""").clear()
         time.sleep(1)
-        xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[3]/div[3]/span/span/input""").send_keys(term)
+        try:
+            xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[3]/div[3]/span/span/input""").send_keys(term)
+        except selenium.common.exceptions.ElementNotInteractableException:
+            time.sleep(3)
+            print("Had to sleep due to non-interactable")
+            xpath("""/html/body/div[2]/div[1]/div/div/form/div[1]/div[3]/div[3]/span/span/input""").send_keys(term)
         time.sleep(1)
         wait("""//*[@id="SearchButton"]""")
         if usedID > 1:

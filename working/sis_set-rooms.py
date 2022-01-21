@@ -9,7 +9,7 @@ from selenium.common.exceptions import NoSuchElementException, WebDriverExceptio
 # load page
 chrome_path = r"C:\Work\chromedriver.exe"
 driver = webdriver.Chrome(chrome_path)
-driver.maximize_window()
+# driver.maximize_window()
 driver.get("""https://bcsint.is.berkeley.edu""")
 xpath = driver.find_element_by_xpath
 

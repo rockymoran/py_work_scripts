@@ -1,4 +1,7 @@
-# trying to recreate the algorithm you wrote on 3/11 and somehow didn't save. way to go lmao
+# this is the background code for run_scheduler.py
+# this file is only ran directly for testing purposes
+
+# trying to recreate the algorithm you wrote on 3/11/21 and somehow didn't save. way to go lmao
 # need to figure out how you implemented the regex into it
 # places courses into rooms based on requested day/time/capacity
 # takes 3 separate files (rooms.csv, course.csv, filled_rooms.csv)
@@ -67,6 +70,7 @@ def readRooms(room_file, verbose=False):
         if verbose:
             print("%s created" % x.name)
 
+
 # create course records for each preassigned course
 def createPreassigned_Courses(preassignment_file, verbose=False):
     for name, days, times, preassigned_room in preassignment_file:
@@ -114,7 +118,7 @@ def createCourses(course_file, verbose=False):
 
 # iterate through course list and compare course times to available room times. if room times are available,
 # see if course fits in the room, if so, assign course to room and remove times as "available"
-def scheduleCourses(verbose=False, output_file=False):
+def scheduleCourses(verbose=False, output_file=False, loser_file=False):
     assigned = 0
     unassigned = 0
     for course in Course.course_instances:
@@ -132,6 +136,7 @@ def scheduleCourses(verbose=False, output_file=False):
                         break
     unassigned = (sum(1 for course in Course.course_instances if course.need_room))
     results = []
+    losers = []
     columns = ['Schedule_ID', 'Days', 'Times', 'Room']
     for course in Course.course_instances:
         if course.assigned_room:
@@ -143,9 +148,21 @@ def scheduleCourses(verbose=False, output_file=False):
                     'Room': course.assigned_room
                 }
             )
+        elif not course.assigned_room and course.need_room:
+            losers.append(
+                {
+                    'Schedule_ID': course.name,
+                    'Days': course.readable_days,
+                    'Times': course.readable_times,
+                    'Room': course.assigned_room
+                }
+            )
     df = pd.DataFrame(results)
+    loser_df = pd.DataFrame(losers)
     if output_file:
         df[columns].to_excel(output_file)
+    if loser_file:
+        loser_df[columns].to_excel(loser_file)
     else:
         print(df[columns])
     print("Process complete. %s courses processsed. %s courses assigned. %s remain unassigned." % (unassigned,
@@ -171,20 +188,21 @@ if __name__ == "__main__":
     # tab delimited room file (rooms.csv)
     # c132     12
     # c335     28
-    room_input_file = r"C:\Work\test_rooms.csv"
+    room_input_file = r"C:\Work\rooms.csv"
 
     # tab delimited file with courses that need placement (course.csv)
-    # unique course identifier, day/time, course-capacity
+    # unique course id, day, time (start and end, dash separated), course-capacity
     # 00001   MW 8:00am-9:30AM    71
     # 00002   MW 8:00am-9:30AM    41
     # 00003   MW 8:00am-9:30AM    31
-    course_input_file = r"C:\Work\test_course.csv"
+    course_input_file = r"C:\Work\course.csv"
 
     # tab delimited pre-assigned course file (filled_rooms.csv)
-    # N300	F	08:00AM-09:00AM
-    # C220	F	09:00AM-10:00AM
-    # N300	MW	12:30PM-02:00PM
-    preassigned_input_file = r"C:\Work\test_filled_rooms.csv"
+    # unique course id, day, time (start and end, dash separated), room
+    # 00004   MW 8:00am-9:30AM    N100
+    # 00005   MW 8:00am-9:30AM    C330
+    # 00006   MW 8:00am-9:30AM    C210
+    preassigned_input_file = r"C:\Work\filled_rooms.csv"
 
     room_file = reader(open(room_input_file), delimiter='\t')
     course_file = reader(open(course_input_file), delimiter='\t')
