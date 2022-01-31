@@ -27,6 +27,7 @@ login.login_cs(driver, xpath, wait)
 
 # example file format (tabs) (ind.txt)
 # PHDBA299A	1	Dal Bo, E	19011	6	ind working title
+# if ccn is unknown, use 'tbd' for that field
 with open(r"C:\Work\ind.txt") as csvfile:
     file = csv.reader(csvfile, delimiter='\t')
     for row in file:
@@ -47,7 +48,8 @@ with open(r"C:\Work\ind.txt") as csvfile:
         xpath("""//*[@id="AddCSForm"]/div/div[1]/div/span[1]/span/input""").send_keys(row[0])
         xpath("""//*[@id="AddCSForm"]/div/div[1]/div/span[1]/span/input""").send_keys(Keys.ENTER)
         xpath("""//*[@id="SectionText"]  """).send_keys(row[1])
-        xpath("""//*[@id="CCNText"]""").send_keys(row[3])
+        if str(row[3]).upper() != 'TBD':
+            xpath("""//*[@id="CCNText"]""").send_keys(row[3])
         xpath("""//*[@id="AddCSForm"]/div/div[3]/div[3]/span[1]/span/input[1]""").send_keys(row[4])
         try:
             xpath("""//*[@id="AddCSForm"]/div/div[4]/div[3]/span[1]/span/input""").send_keys(row[5])

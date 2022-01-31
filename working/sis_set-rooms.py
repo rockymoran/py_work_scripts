@@ -1,3 +1,5 @@
+# i don't think this works. use sis_day_time.py instead
+
 import csv
 import time
 from selenium import webdriver
