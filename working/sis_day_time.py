@@ -5,7 +5,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as ec
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
 from datetime import datetime
 from datetime import timedelta
 
@@ -108,7 +108,7 @@ def change_times(x, y):
     time.sleep(.5)
     wait("""//*[@id="CLASS_MTG_PAT_MEETING_TIME_START$0"]""")
     xpath("""//*[@id="CLASS_MTG_PAT_MEETING_TIME_START$0"]""").send_keys(x)
-    save_record()
+    time.sleep(.5)
     wait("""//*[@id="CLASS_MTG_PAT_MEETING_TIME_END$0"]""")
     xpath("""//*[@id="CLASS_MTG_PAT_MEETING_TIME_END$0"]""").clear()
     time.sleep(.5)
@@ -213,7 +213,6 @@ def change_room(x):
     }
     xpath("""//*[@id="CLASS_MTG_PAT_FACILITY_ID$0"]""").clear()
     xpath("""//*[@id="CLASS_MTG_PAT_FACILITY_ID$0"]""").send_keys(room_list.get(x.upper(), "none"))
-    save_record()
     time.sleep(1.5)
     try:
         driver.switch_to.parent_frame()
@@ -297,7 +296,6 @@ def main():
     driver.get("https://bcsint.is.berkeley.edu/psp/bcsprd/EMPLOYEE/SA/c/ESTABLISH_COURSES.CLASS_DATA_SCTN.GBL")
     with open(r"C:\Work\course_discrepancies.csv") as csvfile:
         frame_wait("ptifrmtgtframe")
-
         file = csv.reader(csvfile, delimiter='\t')
         # file format (course_discrepancies.csv)
         # CCN   Days    StartT  EndT    Room
@@ -324,7 +322,6 @@ def main():
             WebDriverWait(driver, 5).until(ec.invisibility_of_element_located((By.XPATH, loading)))
             if maxes == 1:
                 change_max()
-                save_record()
             xpath("""//*[@id="ICTAB_0"]""").click()
             WebDriverWait(driver, 5).until(ec.invisibility_of_element_located((By.XPATH, loading)))
             wait("""// *[ @ id = "CLASS_MTG_PAT_STND_MTG_PAT$0"]""")
@@ -333,16 +330,22 @@ def main():
             change_times(start, end)
             if not skip_room:
                 change_room(room)
-            time.sleep(1.5)
-            save_record()
+            time.sleep(2)
             if maxes == 1:
                 change_max(room_max)
             WebDriverWait(driver, 5).until(ec.invisibility_of_element_located((By.XPATH, loading)))
-            save_record()
-            return_to_results()
-            WebDriverWait(driver, 5).until(ec.invisibility_of_element_located((By.XPATH, loading)))
-            wait("""//*[@id="#ICClear"]""")
-            print(CCN)
+            try:
+                save_record()
+                return_to_results()
+                WebDriverWait(driver, 5).until(ec.invisibility_of_element_located((By.XPATH, loading)))
+                wait("""//*[@id="#ICClear"]""")
+                print(CCN + " successfully changed.")
+            except ElementClickInterceptedException:
+                print(CCN + " failed to save. Moving to next item")
+                driver.get(
+                    "https://bcsint.is.berkeley.edu/psp/bcsprd/EMPLOYEE/SA/c/ESTABLISH_COURSES.CLASS_DATA_SCTN.GBL")
+                frame_wait("ptifrmtgtframe")
+
     print("Complete")
 
 
