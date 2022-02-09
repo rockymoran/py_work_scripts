@@ -1,4 +1,4 @@
-import config
+from working import config
 
 username = config.username
 password = config.password

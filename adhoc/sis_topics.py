@@ -55,6 +55,7 @@ def maintain_soc_search(w, x, y, z="UCB01"):
 
 def add_topic(ccn, t_id):
     while xpath("""//*[@id="CLASS_TBL_CLASS_NBR$0"]""").text != ccn:
+        wait("""//*[@id="$ICField21$hdown$0"]""")
         xpath("""//*[@id="$ICField21$hdown$0"]""").click()
         wait_processing()
     wait_processing()
@@ -71,6 +72,7 @@ def add_topic(ccn, t_id):
         except Exception:
             traceback.print_exc()
     i = 0
+    result = ''
     while i < 20:
         try:
             driver.find_element_by_link_text(t_id).click()
@@ -86,7 +88,11 @@ def add_topic(ccn, t_id):
                 i += 1
                 result = "timeout"
     wait_processing()
-    frame_wait("ptifrmtgtframe")
+    try:
+        frame_wait("ptifrmtgtframe")
+    except TimeoutException:
+        driver.switch_to.parent_frame()
+        frame_wait("ptifrmtgtframe")
     return result
 
 
@@ -103,10 +109,10 @@ def main():
             maintain_soc_search(subject, course_number, term)
             time.sleep(1)
             try:  # test whether search goes directly to results, or first record must be clicked
-                wait("""//*[@id="CLASS_TBL_SESSION_CODE$0"]""")
+                wait("""//*[@id="CLASS_TBL_CLASS_SECTION$0"]""")
             except TimeoutException:
                 xpath("""//*[@id="SEARCH_RESULT1"]""").click()
-                wait("""//*[@id="CLASS_TBL_SESSION_CODE$0"]""")
+                wait("""//*[@id="CLASS_TBL_CLASS_SECTION$0"]""")
             result = add_topic(ccn, t_id)
             if result == "timeout":
                 break
