@@ -35,7 +35,7 @@ def wait_processing():
 
 
 def url_wait(x):
-    WebDriverWait(driver, 10).until(EC.url_to_be(x))
+    WebDriverWait(driver, 10).until(ec.url_to_be(x))
     return
 
 
