@@ -25,6 +25,7 @@ campus = filedialog.askopenfilename(title='Please select the SIS "UCCS_R_SCHD_EX
 output_room = r'C:\work\course_discrepancies.csv'
 output_inst = r'C:\work\instructor_discrepancies.csv'
 output_print = r'C:\work\print_discrepancies.csv'
+test_output = r'C:\work\test_output.csv'
 output_rooms_columns = ["CCN", 'Days', 'StartT', 'EndT', 'Room']
 output_inst_columns = ["CCN", "Instructor"]
 output_print_suppress = ['Print Course', "Schedule Print"]
@@ -93,12 +94,12 @@ haas_df['StartT'] = pd.to_datetime(haas_df["StartT"]).dt.strftime("%I:%M%p")
 haas_df['EndT'] = pd.to_datetime(haas_df["EndT"]).dt.strftime("%I:%M%p")
 haas_df['haas_daytime'] = haas_df['Days'] + haas_df['StartT'] + haas_df['EndT'] + haas_df['new_room']
 haas_df['haas_inst_lname'] = Inst_split[0]
-haas_df['CCN'] = haas_df['CCN'].astype(str)
+haas_df['CCN'] = haas_df['CCN'].astype(dtype=int, errors='ignore').astype(str)
 
 campus_df = pd.read_excel(campus, skiprows=1)
 campus_df['Instructor Name'] = campus_df['Instructor Name'].astype(str)
 Inst_split = campus_df['Instructor Name'].str.split(pat=',', n=1, expand=True)
-campus_df['Class Nbr'] = campus_df['Class Nbr'].astype(str)
+campus_df['Class Nbr'] = campus_df['Class Nbr'].astype(dtype=int, errors='ignore').astype(str)
 campus_df['new_day'] = campus_df['Meeting Days (MTWRFSU)'].map(days_list)
 campus_df['Start Time'] = pd.to_datetime(campus_df["Start Time"]).dt.strftime("%I:%M%p")
 campus_df['End Time'] = pd.to_datetime(campus_df['End Time']) + pd.Timedelta(minutes=1)
@@ -109,7 +110,15 @@ campus_df['campus_inst_lname'] = Inst_split[0]
 campus_df['Section'] = campus_df['Section'].apply(str)
 campus_df['Print Course'] = campus_df["Subject"] + campus_df["Catalog Nbr"] + "." + campus_df["Section"]
 
+# print(haas_df.columns)
+# print(campus_df.columns)
+# print(haas_df)
+# print(campus_df)
+
 combine = pd.merge(haas_df, campus_df, left_on=['CCN'], right_on=["Class Nbr"], indicator=True, how='outer')
+# print(combine)
+combine.to_csv(test_output, index=False, sep='\t')
+
 combine_room = combine[(combine['haas_daytime'] != combine['campus_daytime']) & (combine['_merge'] == "both")]
 combine_room = combine_room[output_rooms_columns].drop_duplicates()
 combine_inst = combine[(combine['haas_inst_lname'] != combine['campus_inst_lname']) & (combine['_merge'] == "both")]
