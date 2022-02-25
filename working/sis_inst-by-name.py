@@ -1,3 +1,7 @@
+# sets instructors on courses in the sis
+# note it will remove existing instructors if multiple are present, so do not use just to add one name
+# instead make sure ALL names are on each row (separated by semicolons)
+
 import time
 import csv
 import traceback
@@ -51,7 +55,7 @@ def search_emp(instructor, list_pos):
 
     position_entered = 0
 
-    # if multiple instructors are being added, delete all instructors that exist
+    # if this is the first instructor being added to a CCN, delete all others
     if list_pos == 0:  # only do this for the first instructor on a course
         # check if multiple instructors exist on the course record
         while True:
@@ -163,7 +167,7 @@ def role_change(which_box, role="PI"):
 # file format (instructor_discrepancies.csv)
 # CCN   Last, First
 # 19754 Miller, Conrad
-# 19755 Walker, William
+# 19755 Walker, William; Dal Bo, Ernesto
 
 def main():
     file = r"C:\Work\instructor_discrepancies.csv"
