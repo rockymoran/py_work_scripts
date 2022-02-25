@@ -4,9 +4,15 @@ import traceback
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
-from selenium.common.exceptions import NoSuchFrameException
+from selenium.common.exceptions import NoSuchFrameException, TimeoutException
 from working import sis_day_time
 from datetime import date
+import logging
+
+logging.basicConfig(level=logging.WARNING)
+logging.getLogger("selenium.webdriver.remote.remote_connection").disabled = True
+logging.getLogger("urllib3.connectionpool").disabled = True
+
 
 wait = sis_day_time.wait
 xpath = sis_day_time.xpath
@@ -44,11 +50,40 @@ def search_emp(instructor, list_pos):
     search_first_name = ''.join(e for e in first_name if e.isalnum()).upper()
 
     position_entered = 0
+
+    # if multiple instructors are being added, delete all instructors that exist
+    if list_pos == 0:  # only do this for the first instructor on a course
+        # check if multiple instructors exist on the course record
+        while True:
+            try:
+                xpath("""//*[@id="CLASS_INSTR$delete$1$$0"]""").click()
+            except NoSuchElementException:
+                logging.debug('NoSuchElementException found while deleting instructors')
+                break
+            time.sleep(1)
+            WebDriverWait(driver, 120).until(
+                ec.invisibility_of_element_located((By.XPATH, """//*[@id="processing"]""")))
+            driver.switch_to.parent_frame()
+            logging.debug('switched frame')
+            wait("""//*[@id="#ALERTOK"]""")
+            xpath("""//*[@id="#ALERTOK"]""").click()
+            logging.debug('clicked ok')
+            time.sleep(1)
+            WebDriverWait(driver, 120).until(
+                ec.invisibility_of_element_located((By.XPATH, """//*[@id="processing"]""")))
+            time.sleep(1)
+            frame_wait("ptifrmtgtframe")
+            logging.debug('found main frame again')
+
+
     # if this isn't the first instructor for the course, click "add inst" button.
     # then find an empty instructor box and check its id
     # use that box's id ("position_entered") as the one you're entering data into--prevent from overwriting
     # instructors
+    logging.debug('deleted instructors or not first instructor')
+    logging.debug('now adding new instructors')
     if list_pos > 0:
+        logging.debug('not first instructor in list - adding fields')
         xpath(add_inst).click()
         time.sleep(2)
         for i in range(list_pos + 1):
@@ -92,7 +127,13 @@ def search_emp(instructor, list_pos):
         time.sleep(1)
         xpath(search_cancel).click()
         success = False
-    frame_wait("ptifrmtgtframe")
+    logging.debug('search done waiting for frame')
+    try:
+        frame_wait("ptifrmtgtframe")
+    except TimeoutException:
+        driver.switch_to.parent_frame()
+        frame_wait("ptifrmtgtframe")
+    logging.debug('frame found')
     return position_entered, success
 
 
@@ -150,6 +191,7 @@ def main():
                     sis_search(ccn, term)
                     wait(add_inst)
                     time.sleep(1)
+
                     entered, success = search_emp(faculty, i)
                     problem += 1  # 1
                     save_record()
