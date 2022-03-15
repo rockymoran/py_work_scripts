@@ -137,7 +137,7 @@ def scheduleCourses(verbose=False, output_file=False, loser_file=False):
     unassigned = (sum(1 for course in Course.course_instances if course.need_room))
     results = []
     losers = []
-    columns = ['Schedule_ID', 'Days', 'Times', 'Room']
+    columns = ['Schedule_ID', 'Days', 'Start Time', 'End Time', 'Room']
     for course in Course.course_instances:
         if course.assigned_room:
             results.append(
@@ -158,7 +158,10 @@ def scheduleCourses(verbose=False, output_file=False, loser_file=False):
                 }
             )
     df = pd.DataFrame(results)
+    df[["Start Time", "End Time"]] = df["Times"].str.split("-", n=1, expand=True)
     loser_df = pd.DataFrame(losers)
+    loser_df[["Start Time", "End Time"]] = loser_df["Times"].str.split("-", n=1, expand=True)
+
     if output_file:
         df[columns].to_excel(output_file)
     if loser_file:
