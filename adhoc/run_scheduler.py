@@ -6,24 +6,24 @@ import scheduling_placement
 # tab delimited room file (rooms.csv)
 # c132     12
 # c335     28
-room_input_file = r"C:\Work\rooms.csv"
+room_input_file = r"C:\Work\placement-rooms.csv"
 
 # tab delimited file with courses that need placement (course.csv)
 # unique course id, day, time (start and end, dash separated), course-capacity
 # 00001   MW 8:00am-9:30AM    71
 # 00002   MW 8:00am-9:30AM    41
 # 00003   MW 8:00am-9:30AM    31
-course_input_file = r"C:\Work\course.csv"
+course_input_file = r"C:\Work\placement-course.csv"
 
 # tab delimited pre-assigned course file (filled_rooms.csv)
 # unique course id, day, time (start and end, dash separated), room
 # 00004   MW 8:00am-9:30AM    N100
 # 00005   MW 8:00am-9:30AM    C330
 # 00006   MW 8:00am-9:30AM    C210
-preassigned_input_file = r"C:\Work\filled_rooms.csv"
+preassigned_input_file = r"C:\Work\placement-filled_rooms.csv"
 
-output_file = r"C:\Work\scheduled_rooms.xlsx"
-loser_file = r"C:\Work\losers.xlsx"
+output_file = r"C:\Work\placement-scheduled_rooms.xlsx"
+loser_file = r"C:\Work\placement-losers.xlsx"
 
 
 room_file = reader(open(room_input_file), delimiter='\t')
