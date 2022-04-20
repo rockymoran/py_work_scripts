@@ -48,7 +48,7 @@ def section_info(x):
     xpath("""//*[@id="CLASS_TBL_CLASS_SECTION$0"]""").send_keys(y)
     try:
         xpath("""//*[@id="CLASS_TBL_ASSOCIATED_CLASS$0"]""").clear()
-        xpath("""//*[@id="CLASS_TBL_ASSOCIATED_CLASS$0"]""").send_keys(re.sub("\D", "", x))
+        xpath("""//*[@id="CLASS_TBL_ASSOCIATED_CLASS$0"]""").send_keys(re.sub("\D*", "66", x))
     except InvalidElementStateException:
         pass
     return
