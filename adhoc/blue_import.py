@@ -39,6 +39,9 @@ FilterSearch = r"""//*[@id="AdminUC_DataSources_AdminDataSource_Tabs_btnSearch"]
 
 EditDatasource = r"""//*[@id="AdminUC_DataSources_AdminDataSource_Tabs_MultiDataSource_listing"]/tbody/tr[3]/td[7]/a"""
 
+Datasource_TableCheck = r"""//*[@id="AdminUC_DataSources_AdminDataSource_Tabs_MultiDataSource_listing"]/tbody/tr[
+                        3]/td[2]/span """
+
 
 # load page
 login.login_Blue(driver, xpath, wait)
@@ -66,8 +69,13 @@ def import_datasources(searches, debug):
         else:
             pass
         wait(EditDatasource)
-        time.sleep(2)
-        xpath(EditDatasource).click()
+        if xpath(Datasource_TableCheck).text == search:
+            print("{} found. Script continuing".format(search))
+            time.sleep(2)
+            xpath(EditDatasource).click()
+        else:
+            print("{} not found.".format(search))
+            break
         if debug == 1:
             input("Enter to continue")
         else:
