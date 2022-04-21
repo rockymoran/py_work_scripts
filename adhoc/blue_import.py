@@ -42,6 +42,8 @@ EditDatasource = r"""//*[@id="AdminUC_DataSources_AdminDataSource_Tabs_MultiData
 Datasource_TableCheck = r"""//*[@id="AdminUC_DataSources_AdminDataSource_Tabs_MultiDataSource_listing"]/tbody/tr[
                         3]/td[2]/span """
 
+Success = r"""//*[@id="AdminUC_Data_AdminDS_Import_lblAnonymousErrorMsg"]"""
+
 
 # load page
 login.login_Blue(driver, xpath, wait)
@@ -58,20 +60,20 @@ def import_datasources(searches, debug):
         else:
             pass
         wait(Datasources)
-        time.sleep(2)
+        time.sleep(1)
         xpath(Datasources).click()
         wait(FilterSearch)
         xpath(FilterText).send_keys(search)
         xpath(FilterSearch).click()
-        time.sleep(2)
+        time.sleep(1)
         if debug == 1:
             input("Enter to continue")
         else:
             pass
         wait(EditDatasource)
         if xpath(Datasource_TableCheck).text == search:
-            print("{} found. Script continuing".format(search))
-            time.sleep(2)
+            print("{} found. Importing...".format(search))
+            time.sleep(1)
             xpath(EditDatasource).click()
         else:
             print("{} not found.".format(search))
@@ -81,26 +83,24 @@ def import_datasources(searches, debug):
         else:
             pass
         wait(NavImportExport)
-        time.sleep(2)
+        time.sleep(1)
         xpath(NavImportExport).click()
         if debug == 1:
             input("Enter to continue")
         else:
             pass
         wait(Import)
-        time.sleep(2)
+        time.sleep(1)
         xpath(Import).click()
         if debug == 1:
             input("Enter to continue")
         else:
             pass
-        wait(progress)
-        WebDriverWait(driver, 120).until(
-            EC.invisibility_of_element_located((By.XPATH, progress)))
-        wait(Finalize)
-        time.sleep(2)
+        WebDriverWait(driver, 180).until(EC.element_to_be_clickable((By.XPATH, Finalize)))
+        time.sleep(1)
         xpath(Finalize).click()
         wait(Import)
+        print("{}: {}".format(search, xpath(Success).text))
 
 
 import_datasources(searches, 0)
