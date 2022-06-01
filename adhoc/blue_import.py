@@ -96,7 +96,7 @@ def import_datasources(searches, debug):
             input("Enter to continue")
         else:
             pass
-        WebDriverWait(driver, 180).until(EC.element_to_be_clickable((By.XPATH, Finalize)))
+        WebDriverWait(driver, 360).until(EC.element_to_be_clickable((By.XPATH, Finalize)))
         time.sleep(1)
         xpath(Finalize).click()
         wait(Import)
