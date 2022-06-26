@@ -1,6 +1,6 @@
 import pandas as pd
 
-file = r"C:\Users\rocky_moran\Downloads\EvalDatesByInstructor Spring 2019 (3).xlsx"
+file = r"D:\Windows User Files\Downloads\EvalDatesByInstructor Spring 2021.xlsx"
 
 df = pd.read_excel(file)
 df = df.join(df.CourseEvalDates.str.split(';', expand=True)
