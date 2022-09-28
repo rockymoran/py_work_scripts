@@ -1,4 +1,4 @@
-# not working yet
+# seems to work
 
 import warnings
 import os
@@ -23,5 +23,4 @@ def renameFiles():
         os.rename(src, dst)
 
 
-if __name__ == '__main__':
     renameFiles()

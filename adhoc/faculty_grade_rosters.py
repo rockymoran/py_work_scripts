@@ -1,6 +1,8 @@
-# using a spreadsheet with CAMPUS SOLUTIONS ID number, this will download each faculty member's mentorship report
-# before running it the C:\Work\Roster_Downloads directory must be empty (otherwise rename step will get all
-# messed up. Script tests for that before running.
+# using a spreadsheet with CCN and Terms, this will download each course roster
+# before running it the C:\Work\Scripting_Downloads directory must be empty (otherwise rename step will get all
+# messed up). Script tests for that before running.
+# run "combine_excel.py" afterward if you want to put all of the data into one sheet. this step necessitates moving
+# the fetched files into the work/temp directory.
 
 from working import sis_day_time
 from selenium.webdriver.support.ui import Select
@@ -17,8 +19,8 @@ driver = sis_day_time.driver
 WebDriverWait = sis_day_time.WebDriverWait
 
 # set script variables for urls and file locations
-# for faculty_file, it requires a column named "ccn" and "term"
-# make sure to specify the sheet name in row 23
+# for faculty_file, it requires columns named (case sensitive) "ccn" and "term"
+# (term is in campus solutions format, eg 2228 for Fall 22)
 report_url = """https://bcsint.is.berkeley.edu/psc/bcsprd_3/EMPLOYEE/SA/q/
                 ?ICAction=ICQryNameExcelURL=PUBLIC.UCCS_R_ROSTER_DETAIL"""
 faculty_file = r"""C:\Work\rosterCCNs.xlsx"""
