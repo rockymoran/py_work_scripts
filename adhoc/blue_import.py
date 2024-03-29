@@ -37,7 +37,7 @@ FilterText = r"""//*[@id="AdminUC_DataSources_AdminDataSource_Tabs_tbSearchValue
 FilterValue = "haas"
 FilterSearch = r"""//*[@id="AdminUC_DataSources_AdminDataSource_Tabs_btnSearch"]"""
 
-EditDatasource = r"""//*[@id="AdminUC_DataSources_AdminDataSource_Tabs_MultiDataSource_listing"]/tbody/tr[3]/td[7]/a"""
+EditDatasource = r"""//*[@id="AdminUC_DataSources_AdminDataSource_Tabs_MultiDataSource_listing"]/tbody/tr[3]/td[8]/a"""
 
 Datasource_TableCheck = r"""//*[@id="AdminUC_DataSources_AdminDataSource_Tabs_MultiDataSource_listing"]/tbody/tr[
                         3]/td[2]/span """

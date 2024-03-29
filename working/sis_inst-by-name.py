@@ -99,7 +99,7 @@ def search_emp(instructor, list_pos):
             search_box = id_box_pre + str(i) + id_box_suf
             inst_value = xpath(search_box).get_attribute("Value")
             inst_value = inst_value[:]
-            if inst_value is "":
+            if inst_value == "":
                 position_entered = i
                 search_glass = search_glass_pre + str(position_entered) + search_glass_suf
                 break
@@ -185,7 +185,7 @@ def main():
             faculty_list = row[1].split(";")
             try:  # if role is in file, use it
                 role = row[2].upper()
-                if role is '':
+                if role == '':
                     role = "PI"
             except IndexError:  # otherwise default to primary instructor
                 role = "PI"

@@ -10,14 +10,17 @@ from datetime import datetime
 from datetime import timedelta
 
 # load page
-chrome_path = r"C:\Work\chromedriver.exe"
-chromeOptions = webdriver.ChromeOptions()
-prefs = {"download.default_directory": "C:\Work\Scripting_Downloads"}
-chromeOptions.add_experimental_option("prefs", prefs)
-driver = webdriver.Chrome(executable_path=chrome_path, chrome_options=chromeOptions)
-xpath = driver.find_element_by_xpath
+driver = webdriver.Chrome()
+
+
+def xpath(x):
+    return driver.find_element(By.XPATH, x)
+
+
 loading = """//*[@id="processing"]"""
-link = driver.find_element_by_link_text
+
+def link(x):
+    return driver.find_element(By.LINK_TEXT, x)
 
 
 def wait(x):
@@ -108,12 +111,17 @@ def change_times(x, y):
     time.sleep(.5)
     wait("""//*[@id="CLASS_MTG_PAT_MEETING_TIME_START$0"]""")
     xpath("""//*[@id="CLASS_MTG_PAT_MEETING_TIME_START$0"]""").send_keys(x)
-    time.sleep(.5)
+    time.sleep(1)
     wait("""//*[@id="CLASS_MTG_PAT_MEETING_TIME_END$0"]""")
     xpath("""//*[@id="CLASS_MTG_PAT_MEETING_TIME_END$0"]""").clear()
-    time.sleep(.5)
+    time.sleep(1)
     xpath("""//*[@id="CLASS_MTG_PAT_MEETING_TIME_END$0"]""").send_keys(y)
-    time.sleep(1.5)
+    time.sleep(1)
+    while xpath("""//*[@id="CLASS_MTG_PAT_MEETING_TIME_END$0"]""").get_attribute("value") != y:
+        time.sleep(.5)
+        xpath("""//*[@id="CLASS_MTG_PAT_MEETING_TIME_END$0"]""").clear()
+        xpath("""//*[@id="CLASS_MTG_PAT_MEETING_TIME_END$0"]""").send_keys(y)
+        time.sleep(.5)
     return
 
 
@@ -169,7 +177,11 @@ def find_max(x):
         "I-Lab 124": 70,
         "S300T": 60
     }
-    return room_list.get(x.upper(), "none")
+    # Convert dictionary keys to uppercase (or lowercase)
+    room_list_upper = {k.upper(): v for k, v in room_list.items()}
+
+    # Return the value for the converted key or "none" if not found
+    return room_list_upper.get(x.upper(), "none")
 
 
 def change_room(x):
@@ -241,11 +253,11 @@ def save_record():
             frame_wait("ptifrmtgtframe")
             pass
     except:
-            frame_wait("ptifrmtgtframe")
-            xpath("""//*[@id="#ICSave"]""").click()
+        frame_wait("ptifrmtgtframe")
+        xpath("""//*[@id="#ICSave"]""").click()
     time.sleep(2)
     try:
-        driver.find_element_by_xpath("""//*[@id="WAIT_win0"]""").is_displayed()
+        xpath("""//*[@id="WAIT_win0"]""").is_displayed()
         WebDriverWait(driver, 15).until(ec.invisibility_of_element_located((By.ID, "SAVED_win0")))
     except NoSuchElementException:
         pass

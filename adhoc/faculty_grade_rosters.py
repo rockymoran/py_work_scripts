@@ -6,6 +6,7 @@
 
 from working import sis_day_time
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.by import By
 import pandas as pd
 import rename_rosters
 import os
@@ -17,12 +18,12 @@ xpath = sis_day_time.xpath
 frame_wait = sis_day_time.frame_wait
 driver = sis_day_time.driver
 WebDriverWait = sis_day_time.WebDriverWait
+download_dir = r"""C:\Work\Scripting_Downloads\\"""
 
 # set script variables for urls and file locations
 # for faculty_file, it requires columns named (case sensitive) "ccn" and "term"
 # (term is in campus solutions format, eg 2228 for Fall 22)
-report_url = """https://bcsint.is.berkeley.edu/psc/bcsprd_3/EMPLOYEE/SA/q/
-                ?ICAction=ICQryNameExcelURL=PUBLIC.UCCS_R_ROSTER_DETAIL"""
+report_url = """https://bcsint.is.berkeley.edu/psc/bcsprd_3/EMPLOYEE/SA/q/?ICAction=ICQryNameExcelURL=PUBLIC.UCCS_R_ROSTER_DETAIL"""
 faculty_file = r"""C:\Work\rosterCCNs.xlsx"""
 cs_search = """//*[@id="InputKeys_CLASS_NBR"]"""
 cs_term = """//*[@id="InputKeys_STRM"]"""
@@ -47,14 +48,17 @@ def run_report(row):
     xpath(cs_search).clear()
     xpath(cs_search).send_keys(ccn)
     xpath(cs_term).send_keys(row['term'])
-    select = Select(driver.find_element_by_xpath(cs_roster_type))
+    select = Select(driver.find_element(By.XPATH, cs_roster_type))
     select.select_by_value("FIN")
     xpath(results).click()
 
 
 def download_reports():
     sis_day_time.login.login_sis(driver, xpath, wait)
-    wait("""//*[@id="PTNUI_LAND_WRK_GROUPBOX14$PIMG"]/span""")
+    wait("""//*[@id="PTSKEYWORD"]""")
+    params = {'cmd': 'Page.setDownloadBehavior', 'params': {'behavior': 'allow', 'downloadPath': download_dir}}
+    driver.command_executor._commands["send_command"] = ("POST", '/session/$sessionId/chromium/send_command')
+    driver.execute("send_command", params)
     df.apply(run_report, axis=1)
 
 

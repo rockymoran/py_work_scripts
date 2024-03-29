@@ -20,6 +20,7 @@ xpath = sis_day_time.xpath
 frame_wait = sis_day_time.frame_wait
 driver = sis_day_time.driver
 WebDriverWait = sis_day_time.WebDriverWait
+download_dir = r"""C:\Work\Scripting_Downloads\\"""
 
 # set script variables for urls and file locations
 # for faculty_file, it requires columns named (case sensitive) "ccn" and "term"
@@ -84,7 +85,10 @@ def renameFile(filename):
 
 def download_reports():
     sis_day_time.login.login_sis(driver, xpath, wait)
-    wait("""//*[@id="PTNUI_LAND_WRK_GROUPBOX14$PIMG"]/span""")
+    wait("""//*[@id="PTSKEYWORD"]""")
+    params = {'cmd': 'Page.setDownloadBehavior', 'params': {'behavior': 'allow', 'downloadPath': download_dir}}
+    driver.command_executor._commands["send_command"] = ("POST", '/session/$sessionId/chromium/send_command')
+    driver.execute("send_command", params)
     df.apply(run_report, axis=1)
 
 
