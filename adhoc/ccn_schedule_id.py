@@ -2,7 +2,7 @@ import pandas as pd
 import tkinter as tk
 from tkinter import filedialog
 
-# use a "export to excel" file from course scheduling and a "uccs_r_schd_extended" report from campus solutions
+# use an "export to excel" file from course scheduling and a "uccs_r_schd_extended" report from campus solutions
 # results will output to (and overwrite the contents of) a file in c:\work\sched_id_import.csv
 root = tk.Tk()
 root.withdraw()

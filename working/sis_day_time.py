@@ -1,3 +1,6 @@
+# this is the one to use! it updates days times and rooms.
+# there is a problem where the "max" function isn't working though. gg. (so don't use it to set max caps)
+
 import csv
 import time
 import login
@@ -34,7 +37,7 @@ def frame_wait(x):
 
 
 def sis_search(x, y, z="UCB01"):
-    xpath("""//*[@id="#ICClear"]""").click()
+    xpath("""//*[@id="PTS_CFG_CL_WRK_PTS_SRCH_CLEAR"]""").click()
     time.sleep(1.5)
     xpath("""//*[@id="CLASS_SCTN_SCTY_INSTITUTION"]""").send_keys(z)
     time.sleep(1.5)
@@ -42,7 +45,7 @@ def sis_search(x, y, z="UCB01"):
     time.sleep(1.5)
     xpath("""//*[@id="CLASS_SCTN_SCTY_CLASS_NBR"]""").send_keys(x)
     time.sleep(1.5)
-    xpath("""//*[@id="#ICSearch"]""").click()
+    xpath("""//*[@id="PTS_CFG_CL_WRK_PTS_SRCH_BTN"]""").click()
     return
 
 
@@ -104,19 +107,17 @@ def change_times(x, y):
     except ValueError:
         x = ""
         y = ""
-    time.sleep(1.5)
+    time.sleep(1)
     # remove old room first
     xpath("""//*[@id="CLASS_MTG_PAT_FACILITY_ID$0"]""").clear()
     xpath("""//*[@id="CLASS_MTG_PAT_MEETING_TIME_START$0"]""").clear()
-    time.sleep(.5)
-    wait("""//*[@id="CLASS_MTG_PAT_MEETING_TIME_START$0"]""")
-    xpath("""//*[@id="CLASS_MTG_PAT_MEETING_TIME_START$0"]""").send_keys(x)
     time.sleep(1)
-    wait("""//*[@id="CLASS_MTG_PAT_MEETING_TIME_END$0"]""")
-    xpath("""//*[@id="CLASS_MTG_PAT_MEETING_TIME_END$0"]""").clear()
-    time.sleep(1)
-    xpath("""//*[@id="CLASS_MTG_PAT_MEETING_TIME_END$0"]""").send_keys(y)
-    time.sleep(1)
+    while xpath("""//*[@id="CLASS_MTG_PAT_MEETING_TIME_START$0"]""").get_attribute("value") != x:
+        time.sleep(.5)
+        xpath("""//*[@id="CLASS_MTG_PAT_MEETING_TIME_START$0"]""").clear()
+        xpath("""//*[@id="CLASS_MTG_PAT_MEETING_TIME_START$0"]""").send_keys(x)
+        time.sleep(.5)
+
     while xpath("""//*[@id="CLASS_MTG_PAT_MEETING_TIME_END$0"]""").get_attribute("value") != y:
         time.sleep(.5)
         xpath("""//*[@id="CLASS_MTG_PAT_MEETING_TIME_END$0"]""").clear()
@@ -127,10 +128,10 @@ def change_times(x, y):
 
 def change_max(x=1):
     try:
-        xpath("""//*[@id="#ICPanel2"]""").click()
+        xpath("""//*[@id="app_label"]""").click()
         wait("""//*[@id="CLASS_TBL_ENRL_CAP$0"]""")
     except:
-        xpath("""//*[@id="ICTAB_1"]""").click()
+        xpath("""//*[@id="ICTAB_1"]/span""").click()
         wait("""//*[@id="CLASS_TBL_ENRL_CAP$0"]""")
     xpath("""//*[@id="CLASS_TBL_ENRL_CAP$0"]""").clear()
     xpath("""//*[@id="CLASS_TBL_ENRL_CAP$0"]""").send_keys(x)
@@ -185,6 +186,7 @@ def find_max(x):
 
 
 def change_room(x):
+    problem = " Room assignment problem."
     room_list = {
         "No": "",
         "Online": "",
@@ -226,17 +228,18 @@ def change_room(x):
     xpath("""//*[@id="CLASS_MTG_PAT_FACILITY_ID$0"]""").clear()
     xpath("""//*[@id="CLASS_MTG_PAT_FACILITY_ID$0"]""").send_keys(room_list.get(x.upper(), "none"))
     time.sleep(1.5)
+    xpath("""//*[@id="CLASS_MTG_PAT_STND_MTG_PAT$0"]""").click()
     try:
         driver.switch_to.parent_frame()
         wait("""//*[@id="#ICOK"]""")
         xpath("""//*[@id="#ICOK"]""").click()
         frame_wait("ptifrmtgtframe")
-        print("Room conflict")
         wait("""//*[@id="CLASS_MTG_PAT_FACILITY_ID$0"]""")
         xpath("""//*[@id="CLASS_MTG_PAT_FACILITY_ID$0"]""").clear()
+        return problem
     except:
         pass
-    return
+    return ""
 
 
 def save_record():
@@ -279,7 +282,6 @@ def return_to_results():
 
 def main():
     login.login_sis(driver, xpath, wait)
-    login.login_sis(driver, xpath, wait)
     # set semester and whether course max enrollment changes
     term = input("Term (e.g., 2985): ")
     maxes = 0
@@ -314,6 +316,7 @@ def main():
         # 01234 MW      12:30PM 2:00PM  C110
         # 01235 TTh     2:00PM  3:30PM  N300
         for row in file:
+            fail_count = 0
             CCN = row[0]
             start = row[2]
             end = row[3]
@@ -330,33 +333,45 @@ def main():
                     skip_room = True
             except IndexError:
                 skip_room = True
-            sis_search(CCN, term)
-            WebDriverWait(driver, 5).until(ec.invisibility_of_element_located((By.XPATH, loading)))
-            if maxes == 1:
-                change_max()
-            xpath("""//*[@id="ICTAB_0"]""").click()
-            WebDriverWait(driver, 5).until(ec.invisibility_of_element_located((By.XPATH, loading)))
-            wait("""// *[ @ id = "CLASS_MTG_PAT_STND_MTG_PAT$0"]""")
-            change_days(days)
-            time.sleep(1)
-            change_times(start, end)
-            if not skip_room:
-                change_room(room)
-            time.sleep(2)
-            if maxes == 1:
-                change_max(room_max)
-            WebDriverWait(driver, 5).until(ec.invisibility_of_element_located((By.XPATH, loading)))
-            try:
-                save_record()
-                return_to_results()
-                WebDriverWait(driver, 5).until(ec.invisibility_of_element_located((By.XPATH, loading)))
-                wait("""//*[@id="#ICClear"]""")
-                print(CCN + " successfully changed.")
-            except ElementClickInterceptedException:
-                print(CCN + " failed to save. Moving to next item")
-                driver.get(
-                    "https://bcsint.is.berkeley.edu/psp/bcsprd/EMPLOYEE/SA/c/ESTABLISH_COURSES.CLASS_DATA_SCTN.GBL")
-                frame_wait("ptifrmtgtframe")
+            while fail_count < 5:
+                try:
+                    sis_search(CCN, term)
+                    WebDriverWait(driver, 2).until(ec.invisibility_of_element_located((By.XPATH, loading)))
+                    if maxes == 1:
+                        change_max()
+                    xpath("""//*[@id="ICTAB_0"]""").click()
+                    WebDriverWait(driver, 2).until(ec.invisibility_of_element_located((By.XPATH, loading)))
+                    wait("""// *[ @ id = "CLASS_MTG_PAT_STND_MTG_PAT$0"]""")
+                    change_days(days)
+                    time.sleep(1)
+                    change_times(start, end)
+                    problem = ""
+                    if not skip_room:
+                        problem = change_room(room)
+                    time.sleep(2)
+                    if maxes == 1:
+                        change_max(room_max)
+                    WebDriverWait(driver, 3).until(ec.invisibility_of_element_located((By.XPATH, loading)))
+                    try:
+                        save_record()
+                        return_to_results()
+                        WebDriverWait(driver, 3).until(ec.invisibility_of_element_located((By.XPATH, loading)))
+                        wait("""//*[@id="PTS_CFG_CL_WRK_PTS_SRCH_CLEAR"]""")
+                        print(CCN + " days and times saved." + problem)
+                    except ElementClickInterceptedException:
+                        print(CCN + " failed to save. Moving to next item")
+                        driver.get(
+                            "https://bcsint.is.berkeley.edu/psp/bcsprd/EMPLOYEE/SA/c/ESTABLISH_COURSES.CLASS_DATA_SCTN.GBL")
+                        frame_wait("ptifrmtgtframe")
+                    fail_count = 0
+                    break
+                except Exception as e:
+                    print(f"An error occurred: {e}")
+                    print(CCN + " fail - retrying " + str(fail_count + 1))
+                    driver.get(
+                        "https://bcsint.is.berkeley.edu/psp/bcsprd/EMPLOYEE/SA/c/ESTABLISH_COURSES.CLASS_DATA_SCTN.GBL")
+                    frame_wait("ptifrmtgtframe")
+                    fail_count+=1
 
     print("Complete")
 

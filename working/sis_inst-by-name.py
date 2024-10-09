@@ -219,7 +219,7 @@ def main():
                         """https://bcsint.is.berkeley.edu/psp/bcsprd/EMPLOYEE/SA/c/ESTABLISH_COURSES.CLASS_DATA_SCTN.GBL""")
                     frame_wait("ptifrmtgtframe")
                     print(ccn + " problem " + str(problem))
-                wait("""//*[@id="#ICClear"]""")
+                wait("""//*[@id="PTS_CFG_CL_WRK_PTS_SRCH_CLEAR"]""")
     driver.close()
 
 
