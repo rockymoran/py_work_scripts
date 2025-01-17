@@ -27,7 +27,7 @@ def link(x):
 
 
 def wait(x):
-    WebDriverWait(driver, 20).until(ec.element_to_be_clickable((By.XPATH, x)))
+    WebDriverWait(driver, 5).until(ec.element_to_be_clickable((By.XPATH, x)))
     return
 
 
@@ -317,7 +317,7 @@ def main():
         # 01235 TTh     2:00PM  3:30PM  N300
         for row in file:
             fail_count = 0
-            CCN = row[0]
+            ccn = row[0]
             start = row[2]
             end = row[3]
             days = row[1].upper()
@@ -335,7 +335,7 @@ def main():
                 skip_room = True
             while fail_count < 5:
                 try:
-                    sis_search(CCN, term)
+                    sis_search(ccn, term)
                     WebDriverWait(driver, 2).until(ec.invisibility_of_element_located((By.XPATH, loading)))
                     if maxes == 1:
                         change_max()
@@ -357,17 +357,17 @@ def main():
                         return_to_results()
                         WebDriverWait(driver, 3).until(ec.invisibility_of_element_located((By.XPATH, loading)))
                         wait("""//*[@id="PTS_CFG_CL_WRK_PTS_SRCH_CLEAR"]""")
-                        print(CCN + " days and times saved." + problem)
+                        print(ccn + " days and times saved." + problem)
                     except ElementClickInterceptedException:
-                        print(CCN + " failed to save. Moving to next item")
+                        print(ccn + " failed to save. Moving to next item")
                         driver.get(
                             "https://bcsint.is.berkeley.edu/psp/bcsprd/EMPLOYEE/SA/c/ESTABLISH_COURSES.CLASS_DATA_SCTN.GBL")
                         frame_wait("ptifrmtgtframe")
                     fail_count = 0
                     break
                 except Exception as e:
-                    print(f"An error occurred: {e}")
-                    print(CCN + " fail - retrying " + str(fail_count + 1))
+                    # print(f"An error occurred: {e}")
+                    print(ccn + " fail - retrying " + str(fail_count + 1))
                     driver.get(
                         "https://bcsint.is.berkeley.edu/psp/bcsprd/EMPLOYEE/SA/c/ESTABLISH_COURSES.CLASS_DATA_SCTN.GBL")
                     frame_wait("ptifrmtgtframe")

@@ -120,7 +120,7 @@ def search_emp(instructor, list_pos):
     xpath(search_fname).send_keys(search_first_name)
     time.sleep(1)
     xpath(search_click).click()
-    WebDriverWait(driver, 120).until(ec.invisibility_of_element_located((By.XPATH, """//*[@id="processing"]""")))
+    WebDriverWait(driver, 15).until(ec.invisibility_of_element_located((By.XPATH, """//*[@id="processing"]""")))
     try:
         wait(first_result)
         time.sleep(1)
@@ -183,43 +183,56 @@ def main():
             # failed after changing instructor role
             ccn = row[0]
             faculty_list = row[1].split(";")
-            try:  # if role is in file, use it
-                role = row[2].upper()
-                if role == '':
-                    role = "PI"
-            except IndexError:  # otherwise default to primary instructor
-                role = "PI"
-            for i, faculty in enumerate(faculty_list):
-                faculty = faculty.strip()
+            fail_count = 0
+            while fail_count < 5:
                 try:
-                    sis_search(ccn, term)
-                    wait(add_inst)
-                    time.sleep(1)
+                    try:  # if role is in file, use it
+                        role = row[2].upper()
+                        if role == '':
+                            role = "PI"
+                    except IndexError:  # otherwise default to primary instructor
+                        role = "PI"
+                    for i, faculty in enumerate(faculty_list):
+                        faculty = faculty.strip()
+                        try:
+                            sis_search(ccn, term)
+                            wait(add_inst)
+                            time.sleep(1)
 
-                    entered, success = search_emp(faculty, i)
-                    problem += 1  # 1
-                    save_record()
-                    problem += 1  # 2
-                    if success:
-                        role_change(entered, role)
-                        problem += 1  # 3
-                        save_record()
-                        problem += 1  # 4
-                        driver.save_screenshot(r"C:\Work\selenium_screenshots\\" + ccn + "-" + term + "-" + date + ".png")
-                        problem += 1  # 5
-                    return_to_results()
-                    problem += 1  # 6
-                    if success:
-                        print("%s - %s success" % (ccn, faculty))
-                    else:
-                        print("%s - %s failed" % (ccn, faculty))
+                            entered, success = search_emp(faculty, i)
+                            problem += 1  # 1
+                            save_record()
+                            problem += 1  # 2
+                            if success:
+                                role_change(entered, role)
+                                problem += 1  # 3
+                                save_record()
+                                problem += 1  # 4
+                                driver.save_screenshot(r"C:\Work\selenium_screenshots\\" + ccn + "-" + term + "-" + date + ".png")
+                                problem += 1  # 5
+                            return_to_results()
+                            problem += 1  # 6
+                            if success:
+                                print("%s - %s success" % (ccn, faculty))
+                            else:
+                                print("%s - %s failed" % (ccn, faculty))
+                        except Exception as e:
+                            # print(e)
+                            driver.get(
+                                """https://bcsint.is.berkeley.edu/psp/bcsprd/EMPLOYEE/SA/c/ESTABLISH_COURSES.CLASS_DATA_SCTN.GBL""")
+                            frame_wait("ptifrmtgtframe")
+                            print(ccn + " problem " + str(problem))
+                        wait("""//*[@id="PTS_CFG_CL_WRK_PTS_SRCH_CLEAR"]""")
+                    fail_count = 0
+                    break
                 except Exception as e:
-                    print(e)
+                    # print(f"An error occurred: {e}")
+                    print(ccn + " fail - retrying " + str(fail_count + 1))
                     driver.get(
-                        """https://bcsint.is.berkeley.edu/psp/bcsprd/EMPLOYEE/SA/c/ESTABLISH_COURSES.CLASS_DATA_SCTN.GBL""")
+                        "https://bcsint.is.berkeley.edu/psp/bcsprd/EMPLOYEE/SA/c/ESTABLISH_COURSES.CLASS_DATA_SCTN.GBL")
                     frame_wait("ptifrmtgtframe")
-                    print(ccn + " problem " + str(problem))
-                wait("""//*[@id="PTS_CFG_CL_WRK_PTS_SRCH_CLEAR"]""")
+                    fail_count += 1
+
     driver.close()
 
 
