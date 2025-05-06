@@ -11,13 +11,13 @@ driver = sis_day_time.driver
 WebDriverWait = sis_day_time.WebDriverWait
 
 # set script variables for urls and file locations
-roster_url = "https://bcsint.is.berkeley.edu/psc/bcsprd_1/EMPLOYEE/SA/q/?ICAction=" \
-             "ICQryNameExcelURL=PUBLIC.UCCS_R_ROSTER_DETAIL"
+roster_url = """https://bcsint.is.berkeley.edu/psc/bcsprd_1/EMPLOYEE/SA/q/?ICAction=ICQryNameExcelURL=PUBLIC.UCCS_G_ENRL_BY_CLASS"""
 ccn_term_file = """C:\Work\sem_ccn.xlsx"""
 term_search = """//*[@id="InputKeys_STRM"]"""
-roster_type = """//*[@id="InputKeys_GRADE_ROSTER_TYPE"]"""
+email_type = """//*[@id="InputKeys_E_ADDR_TYPE"]"""
 ccn_field = """//*[@id="InputKeys_CLASS_NBR"]"""
 results = """//*[@id="#ICQryDownloadExcelFrmPrompt"]"""
+subject_field = """//*[@id="InputKeys_SUBJECT"]"""
 
 
 # load file of SIS ID numbers
@@ -32,18 +32,20 @@ df = pd.read_excel(ccn_term_file)
 def run_report(x):
     driver.get(roster_url)
     wait(term_search)
-    select = Select(driver.find_element_by_id('InputKeys_GRADE_ROSTER_TYPE'))
-    xpath(term_search).send_keys(x["term"].astype(str))
+    select = Select(driver.find_element('id', 'InputKeys_E_ADDR_TYPE'))
+    xpath(term_search).send_keys(str(x["term"]))
+    xpath(subject_field).clear()
+    xpath(subject_field).send_keys(str(x["prog"]))
     xpath(ccn_field).clear()
-    xpath(ccn_field).send_keys(x["ccn"].astype(str))
-    select.select_by_value('FIN')
+    xpath(ccn_field).send_keys(str(x["ccn"]))
+    select.select_by_value('CAMP')
     xpath(results).click()
 
 
 def main():
     sis_day_time.login.login_sis(driver, xpath, wait)
-    wait("""//*[@id="PTNUI_LAND_WRK_GROUPBOX14$PIMG"]/span""")
-    print(df.head())
+    wait("""//*[@id="win0hdrdivPT_TITLE_CONT"]""")
+    # print(df.head())
     df.apply(run_report, axis=1)
 
 

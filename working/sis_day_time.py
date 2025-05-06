@@ -27,7 +27,7 @@ def link(x):
 
 
 def wait(x):
-    WebDriverWait(driver, 5).until(ec.element_to_be_clickable((By.XPATH, x)))
+    WebDriverWait(driver, 20).until(ec.element_to_be_clickable((By.XPATH, x)))
     return
 
 

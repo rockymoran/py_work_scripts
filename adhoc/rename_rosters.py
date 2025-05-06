@@ -14,11 +14,11 @@ def renameFiles():
         df = pd.read_excel(os.path.join(path, filename), skiprows=1)
         df['Term'] = df['Term'].astype("string")
         df['Subject'] = df['Subject'].astype("string")
-        df['Ctlg Nbr Trim'] = df['Ctlg Nbr Trim'].astype("string")
+        df['Catalog Nbr'] = df['Catalog Nbr'].astype("string")
         df['Class Nbr'] = df['Class Nbr'].astype("string")
 
         try:
-            dst = df.loc[0, 'Term'] + df.loc[0, 'Subject'] + df.loc[0, 'Ctlg Nbr Trim'] + " " + df.loc[
+            dst = df.loc[0, 'Term'] + df.loc[0, 'Subject'] + df.loc[0, 'Catalog Nbr'] + " " + df.loc[
                 0, 'Class Nbr'] + " - " + filename
         except KeyError:
             dst = filename
