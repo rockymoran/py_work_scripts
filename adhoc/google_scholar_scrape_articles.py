@@ -49,11 +49,11 @@ def find_articles(fname, surl, results, s):
         s = captcha(s, page)
         page = s.get(surl, headers=header)
     soup = BeautifulSoup(page.content, 'html.parser')
-    rows = soup.findAll("tr", class_="gsc_a_tr")
+    rows = soup.find_all("tr", class_="gsc_a_tr")
     for row in rows:
         year = row.find("td", class_="gsc_a_y").text
         try:
-            if int(year) >= 2016:
+            if int(year) >= 2023:
                 paper = row.find("a", class_="gsc_a_at").text
                 try:
                     cited = row.find("a", class_="gsc_a_ac gs_ibl").text
@@ -66,7 +66,7 @@ def find_articles(fname, surl, results, s):
                     page = s.get(SCHOLAR_BASE_URL + paper_url, headers=header)
                 soup = BeautifulSoup(page.content, 'html.parser')
                 table = soup.find("div", id='gsc_oci_table')
-                divs = table.findAll("div", class_='gs_scl')
+                divs = table.find_all("div", class_='gs_scl')
                 return_dict = {}
                 for div in divs:
                     label = div.find("div", class_="gsc_oci_field").text
@@ -79,7 +79,8 @@ def find_articles(fname, surl, results, s):
                 return_dict['Scholar Paper Link'] = paper_url
                 return_dict['Year'] = year
                 print(return_dict)
-                results = results.append(return_dict, ignore_index=True)
+                new_row = pd.DataFrame([return_dict])
+                results = pd.concat([results, new_row], ignore_index=True)
                 time.sleep(5)
         except ValueError:
             pass

@@ -1,3 +1,5 @@
+from selenium.common import NoSuchElementException
+
 from working import config
 
 username = config.username
@@ -7,11 +9,15 @@ password = config.password
 def login_sis(driver, xpath, wait):
     driver.maximize_window()
     driver.get("""https://bcsint.is.berkeley.edu""")
-    xpath("""//*[@id="sis-splash-sign-in-button"]""").click()
-    wait("""//*[@id="submit"]""")
+    try:
+        xpath("""//*[@id="sis-splash-sign-in-button"]""").click()
+    except NoSuchElementException:
+        print("Can't login. Are you connected to VPN?")
+        return
+    wait("""//*[@id="submitBtn"]/span""")
     xpath("""//*[@id="username"]""").send_keys(config.username)
     xpath("""//*[@id="password"]""").send_keys(config.password)
-    xpath("""//*[@id="submit"]""").click()
+    xpath("""//*[@id="submitBtn"]/span""").click()
     return
 
 

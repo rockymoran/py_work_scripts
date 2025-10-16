@@ -8,7 +8,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as ec
-from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
+from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException, TimeoutException
 from datetime import datetime
 from datetime import timedelta
 
@@ -21,6 +21,19 @@ def xpath(x):
 
 
 loading = """//*[@id="processing"]"""
+
+
+def wait_for_processing(timeout=15):
+    """
+    Waits for the PeopleSoft processing spinner to become invisible.
+    """
+    try:
+        WebDriverWait(driver, timeout).until(
+            ec.invisibility_of_element_located((By.ID, "WAIT_win0"))
+        )
+    except TimeoutException:
+        print("Warning: Processing spinner did not disappear in time.")
+        pass
 
 def link(x):
     return driver.find_element(By.LINK_TEXT, x)
@@ -128,15 +141,18 @@ def change_times(x, y):
 
 def change_max(x=1):
     try:
+        wait_for_processing()
         xpath("""//*[@id="app_label"]""").click()
         wait("""//*[@id="CLASS_TBL_ENRL_CAP$0"]""")
     except:
+        wait_for_processing()
         xpath("""//*[@id="ICTAB_1"]/span""").click()
         wait("""//*[@id="CLASS_TBL_ENRL_CAP$0"]""")
     xpath("""//*[@id="CLASS_TBL_ENRL_CAP$0"]""").clear()
     xpath("""//*[@id="CLASS_TBL_ENRL_CAP$0"]""").send_keys(x)
+    wait_for_processing()
     xpath("""//*[@id="#ICSave"]""").click()
-    time.sleep(1.5)
+    wait_for_processing()
     return
 
 
@@ -333,7 +349,7 @@ def main():
                     skip_room = True
             except IndexError:
                 skip_room = True
-            while fail_count < 5:
+            while fail_count < 3:
                 try:
                     sis_search(ccn, term)
                     WebDriverWait(driver, 2).until(ec.invisibility_of_element_located((By.XPATH, loading)))
@@ -350,6 +366,7 @@ def main():
                         problem = change_room(room)
                     time.sleep(2)
                     if maxes == 1:
+                        WebDriverWait(driver, 3).until(ec.invisibility_of_element_located((By.XPATH, loading)))
                         change_max(room_max)
                     WebDriverWait(driver, 3).until(ec.invisibility_of_element_located((By.XPATH, loading)))
                     try:
@@ -366,7 +383,7 @@ def main():
                     fail_count = 0
                     break
                 except Exception as e:
-                    # print(f"An error occurred: {e}")
+                    print(f"An error occurred: {e}")
                     print(ccn + " fail - retrying " + str(fail_count + 1))
                     driver.get(
                         "https://bcsint.is.berkeley.edu/psp/bcsprd/EMPLOYEE/SA/c/ESTABLISH_COURSES.CLASS_DATA_SCTN.GBL")

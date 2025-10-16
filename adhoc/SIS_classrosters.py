@@ -21,6 +21,11 @@ subject_field = """//*[@id="InputKeys_SUBJECT"]"""
 
 
 # load file of SIS ID numbers
+# needs at least three columns:
+# term, ccn, prog
+# term is formatted in SIS format (eg, "2148" = Fall 2014)
+# ccn is five digits (eg, 01234)
+# prog is Haas course prefix (eg, "UGBA" "MBA" etc.)
 df = pd.read_excel(ccn_term_file)
 
 # go to roster page
@@ -37,7 +42,7 @@ def run_report(x):
     xpath(subject_field).clear()
     xpath(subject_field).send_keys(str(x["prog"]))
     xpath(ccn_field).clear()
-    xpath(ccn_field).send_keys(str(x["ccn"]))
+    xpath(ccn_field).send_keys(str(x["ccn"]).zfill(5))
     select.select_by_value('CAMP')
     xpath(results).click()
 
