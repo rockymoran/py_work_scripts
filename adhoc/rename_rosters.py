@@ -7,7 +7,8 @@ import pandas as pd
 path = r"""C:\Work\Scripting_Downloads\\"""
 warnings.simplefilter("ignore")
 
-def renameFiles():
+
+def rename_files():
     filenames = os.listdir(path)
     for filename in filenames:
         # Process the file
@@ -17,9 +18,29 @@ def renameFiles():
         df['Catalog Nbr'] = df['Catalog Nbr'].astype("string")
         df['Class Nbr'] = df['Class Nbr'].astype("string")
 
+        # Get the raw term string (e.g., "2212")
         try:
-            dst = df.loc[0, 'Term'] + df.loc[0, 'Subject'] + df.loc[0, 'Catalog Nbr'] + " " + df.loc[
-                0, 'Class Nbr'] + " - " + filename
+            raw_term = str(df.loc[0, 'Term'])
+            # Parse Year: Skip the first char, take the next 2
+            year_str = raw_term[1:3]
+
+            # Parse Semester: Take the last char and map it
+            sem_digit = raw_term[-1]
+            sem_map = {
+                '2': 'Spring',
+                '5': 'Summer',
+                '8': 'Fall'
+            }
+            sem_name = sem_map.get(sem_digit, "Unknown")
+
+            # Create the new prefix (e.g., "21 Spring")
+            readable_term = f"{year_str} {sem_name}"
+        except KeyError:
+            pass
+
+        try:
+            dst = readable_term + " " + df.loc[0, 'Subject'] + df.loc[0, 'Catalog Nbr'] + " " + df.loc[
+                0, 'Class Nbr'] + " - ROSTER" + ".xlsx"
         except KeyError:
             dst = filename
 
@@ -30,4 +51,4 @@ def renameFiles():
         os.rename(src, dst)
 
 
-renameFiles()
+rename_files()
