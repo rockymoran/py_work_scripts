@@ -1,3 +1,6 @@
+# kind of borked due to topics courses in sis
+# can't get past trying to save the new special topics title
+
 # enrollment control
 # elements on enrollment control page (xpath)
 import time
@@ -7,7 +10,6 @@ from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.common.exceptions import NoSuchElementException, TimeoutException, StaleElementReferenceException, ElementClickInterceptedException
 import login
-
 
 
 driver = webdriver.Chrome()
@@ -28,21 +30,22 @@ def wait_for_processing(timeout=15):
 
 def save_record():
     try:
+        wait_for_processing()
         xpath("""//*[@id="#ICSave"]""").click()
+        wait_for_processing()
         try:
-            time.sleep(2)
             driver.switch_to.parent_frame()
-            time.sleep(1)
+            wait_for_processing()
             while xpath("""//*[@id="#ICOK"]""").is_displayed():
                 xpath("""//*[@id="#ICOK"]""").click()
-                time.sleep(2)
+                wait_for_processing()
         except:
             frame_wait("ptifrmtgtframe")
             pass
     except:
         frame_wait("ptifrmtgtframe")
         xpath("""//*[@id="#ICSave"]""").click()
-    time.sleep(2)
+    wait_for_processing()
     try:
         xpath("""//*[@id="WAIT_win0"]""").is_displayed()
         WebDriverWait(driver, 15).until(ec.invisibility_of_element_located((By.ID, "SAVED_win0")))
@@ -73,8 +76,14 @@ def url_wait(x):
 
 class EnrollmentControl:
     def __init__(self):
+        # current room cap (just the display value, not the enterable text value
+        self.current_room_cap = """//*[@id="UC_ROOM_CAP_WRK_ROOM_CAPACITY$0"]"""
+
         # next section
-        self.next_section = """//*[@id="$ICField3$hdown$0"]"""
+        self.next_section = """//*[@id="$ICField21$hdown$0"]"""
+
+        # alt-next section
+        self.next_section_alt = """//*[@id="$ICField3$hdown$0"]"""
 
         # next section inactive
         self.next_inactive = """//*[@id="win0div$ICField3GP$0"]/table/tbody/tr/td[2]/img[2]"""
@@ -93,8 +102,13 @@ class EnrollmentControl:
 
     def change_enrollment(self):
         wait_for_processing()
-        xpath(self.cap).clear()
-        xpath(self.cap).send_keys("999")
+        if xpath(self.current_room_cap).text.strip():
+            pass
+        else:
+            xpath(self.cap).clear()
+            xpath(self.cap).send_keys("999")
+        save_record()
+        print("done: " + xpath("""//*[@id="CLASS_TBL_SCTY_CATALOG_NBR"]""").text.strip())
         wait_for_processing()
 
     def change_consent(self):
@@ -136,15 +150,19 @@ def main():
                 wait(enrollment.add_consent_drop)
                 enrollment.change_consent()
                 wait_for_processing()
-                save_record()
-                wait_for_processing()
                 n += 1
             except StaleElementReferenceException:
                 print("Timeout at " + str(xpath(""""//*[@id="CLASS_TBL_SCTY_CATALOG_NBR"]""").text))
                 time.sleep(5)
             try:
-                xpath(enrollment.next_section).click()
-                time.sleep(2)
+                wait_for_processing()
+                save_record()
+                wait_for_processing()
+                try:
+                    xpath(enrollment.next_section).click()
+                except NoSuchElementException:
+                    xpath(enrollment.next_section_alt).click()
+                wait_for_processing()
             except NoSuchElementException:
                 section_condition = False
         course_condition = xpath(enrollment.next_course).is_enabled()
