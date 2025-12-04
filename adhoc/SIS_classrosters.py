@@ -4,8 +4,24 @@ import pandas as pd
 from selenium.webdriver.support.ui import Select
 import re
 import sys
+import os
+import glob
+import time
 import tkinter as tk
 from tkinter import filedialog
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import Select
+
+# Directory where files will be downloaded and renamed
+# WARNING: Use double backslashes or r"" for Windows paths
+download_dir = r"C:\Work\Downloaded_Reports"
+
+# Ensure download directory exists
+if not os.path.exists(download_dir):
+    os.makedirs(download_dir)
 
 # various sis and selenium variables
 wait = sis_day_time.wait
@@ -14,14 +30,18 @@ frame_wait = sis_day_time.frame_wait
 driver = sis_day_time.driver
 WebDriverWait = sis_day_time.WebDriverWait
 
-# set script variables for urls and file locations
+# ROSTER (2011+) set script variables for urls and file locations
 roster_url = """https://bcsint.is.berkeley.edu/psc/bcsprd_1/EMPLOYEE/SA/q/?ICAction=ICQryNameExcelURL=PUBLIC.UCCS_G_ENRL_BY_CLASS"""
-term_search = """//*[@id="InputKeys_STRM"]"""
 email_type = """//*[@id="InputKeys_E_ADDR_TYPE"]"""
 ccn_field = """//*[@id="InputKeys_CLASS_NBR"]"""
-results = """//*[@id="#ICQryDownloadExcelFrmPrompt"]"""
 subject_field = """//*[@id="InputKeys_SUBJECT"]"""
-
+term_search = """//*[@id="InputKeys_STRM"]"""
+# EGRADES ROSTER (2010-) set script variables for urls and file locations
+older_roster_url = """https://bcsint.is.berkeley.edu/psc/bcsprd_1/EMPLOYEE/SA/q/?ICAction=ICQryNameExcelURL=PUBLIC.UCCS_R_BF_EGRD_ROSTER"""  # Update with actual URL if different
+older_ccn_field = """//*[@id="InputKeys_UC_CRS_CNTL_NUM"]"""
+older_term_search = """//*[@id="InputKeys_TERM"]"""
+# Universal
+results = """//*[@id="#ICQryDownloadExcelFrmPrompt"]"""
 
 # Initialize Tkinter and hide the main window (we only want the popup)
 root = tk.Tk()
@@ -99,23 +119,27 @@ df['prog'] = df['Course'].astype(str).str.extract(pattern, expand=False)
 # --- END PREPROCESSING LOGIC ---
 
 
-
-# go to roster page
+# go to roster page depending on term
 # search for term and ccn
 # download file
-# log success or failure
-
 
 def run_report(x):
-    driver.get(roster_url)
-    wait(term_search)
-    select = Select(driver.find_element('id', 'InputKeys_E_ADDR_TYPE'))
-    xpath(term_search).send_keys(str(x["term"]))
-    xpath(subject_field).clear()
-    xpath(subject_field).send_keys(str(x["prog"]))
-    xpath(ccn_field).clear()
-    xpath(ccn_field).send_keys(str(x["CCN"]).zfill(5))
-    select.select_by_value('CAMP')
+    if int(x["Year"]) > 2010:
+        driver.get(roster_url)
+        wait(term_search)
+        select = Select(driver.find_element('id', 'InputKeys_E_ADDR_TYPE'))
+        xpath(term_search).send_keys(str(x["term"]))
+        xpath(subject_field).clear()
+        xpath(subject_field).send_keys(str(x["prog"]))
+        xpath(ccn_field).clear()
+        xpath(ccn_field).send_keys(str(x["CCN"]).zfill(5))
+        select.select_by_value('CAMP')
+    else:
+        driver.get(older_roster_url)
+        wait(older_term_search)
+        xpath(older_term_search).send_keys(str(x["term"]))
+        xpath(older_ccn_field).clear()
+        xpath(older_ccn_field).send_keys(str(x["CCN"]).zfill(5))
     xpath(results).click()
 
 
