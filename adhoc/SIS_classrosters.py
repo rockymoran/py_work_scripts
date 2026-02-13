@@ -1,3 +1,5 @@
+# no longer used. use SIS_graderosters.py instead
+
 from selenium import webdriver
 from working import sis_day_time
 import pandas as pd

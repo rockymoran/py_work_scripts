@@ -1,4 +1,4 @@
-# seems to work
+# no longer used. use SIS_graderosters.py instead
 
 import warnings
 import os
